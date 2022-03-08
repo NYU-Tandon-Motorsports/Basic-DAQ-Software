@@ -5,6 +5,8 @@ Note: if !!! is before the line then it is an error and should be printed.
 
 Normal data format: (each arg is delimited by space)
 
+start data with $$$
+
 (int ID) (string Name) (int num_outputs) (list<string> comma_series_names) (list<double> comma_delimited outputs) (list<string> comma_delimited_units) (double time)
 
 ex:
