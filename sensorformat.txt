@@ -1,0 +1,17 @@
+Message format:
+Note: if /// is before the line then it is ignored by the parser
+Note: if ### is before the line then it should be printed to the console as info
+Note: if !!! is before the line then it is an error and should be printed.
+
+Normal data format: (each arg is delimited by space)
+
+(int ID) (string Name) (int num_outputs) (list<string> comma_series_names) (list<double> comma_delimited outputs) (list<string> comma_delimited_units) (double time)
+
+ex:
+
+///Current Temperature 20: C
+///Initializing SD card...
+0 DOF9 3 x,y,z 10.5,3.423,-6.6 m/s2,m/s2,m/s2 0.01
+0 DOF9 3 x,y,z 3.23,1.24,0.2 m/s2,m/s2,m/s2 0.02
+0 DOF9 3 x,y,z 5.66,2.56,0.7 m/s2,m/s2,m/s2 0.03
+!!!Battery critically low!!
