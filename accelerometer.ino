@@ -42,13 +42,13 @@ Adafruit_BNO055 bno = Adafruit_BNO055(-1, 0x28);
 void setup(void)
 {
   Serial.begin(9600);
-  Serial.println("Orientation Sensor Raw Data Test"); Serial.println("");
+  Serial.println("###Orientation Sensor Raw Data Test"); Serial.println("");
 
   /* Initialise the sensor */
   if(!bno.begin())
   {
     /* There was a problem detecting the BNO055 ... check your connections */
-    Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
+    Serial.print("!!!Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while(1);
   }
 
@@ -56,16 +56,16 @@ void setup(void)
 
   /* Display the current temperature */
   int8_t temp = bno.getTemp();
-  Serial.print("Current Temperature: ");
+  Serial.print("###Current Temperature: ");
   Serial.print(temp);
   Serial.println(" C");
   Serial.println("");
 
   bno.setExtCrystalUse(true);
 
-  Serial.print("Initializing SD card...");
+  Serial.print("###Initializing SD card...");
 if (!SD.begin(SD_CS_PIN)) {
-Serial.println("initialization failed!");
+Serial.println("!!!initialization failed!");
 return;
 }
 
