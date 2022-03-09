@@ -32,6 +32,8 @@ for i in range (0,500):
             outputs = [float(var) for var in data[4].split(',')]
             units = data[5].split(',')
             time = float(data[6])
+            output = name + " ID = " + str(id) + " " + str(series_names) + " " + str(outputs) + " " + str(units) + "t = " + str(time) + "s"
+            print(output)
             # TODO Send packet with this datapoint to the SQL server
         else:
             print(output)  # extra serial stuff
