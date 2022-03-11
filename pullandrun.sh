@@ -1,5 +1,4 @@
-#! /usr/bin/python
 git pull
 chmod +x serialsensor.py
-./serialsensor.py
+python3 serialsensor.py
 /bin/bash
