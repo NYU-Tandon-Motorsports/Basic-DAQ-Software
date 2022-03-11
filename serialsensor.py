@@ -2,6 +2,7 @@ import os
 
 import serial
 from datetime import datetime
+import driver_telemetry
 
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 
@@ -34,6 +35,7 @@ def parse_serial(serial_in):
             time = float(data[6])
             output = name + " ID = " + str(sense_id) + " " + str(series_names) + " " + str(outputs) + " " + str(units) + " t = " + str(time) + "s"  # logged output
             print(output)
+            driver_telemetry.send_data(data)
             # TODO Send packet with these datapoints to the SQL server
         else:
             print(output)  # unmarked serial input
