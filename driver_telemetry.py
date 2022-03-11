@@ -26,9 +26,9 @@ def display_steering(angle):
 
 # TODO make functions for all of the quantities we want the driver to see during the race
 
-def send_data(ID, name, num_outputs, series_names, outputs, units, time):
-    if ID == HALL_EFFECT:
+def send_data(sense_id, name, num_outputs, series_names, outputs, units, time):
+    if sense_id == HALL_EFFECT:
         display_speed(outputs[0])
-    elif ID == STEERING_ANGLE:
+    elif sense_id == STEERING_ANGLE:
         display_steering(outputs[0])
 
