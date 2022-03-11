@@ -39,10 +39,9 @@ def parse_serial(serial_in):
         output = ""
     return output
 
-
 def main():
     now = datetime.now()
-    log = open("serialdata_" + now.strftime("%m%d%Y_%H-%M-%S") + ".txt", "x")  # timestamping the text file and making a new log
+    log = open("datalogs/serialdata_" + now.strftime("%m%d%Y_%H-%M-%S") + ".txt", "x")  # timestamping the text file and making a new log
     ## serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
     serial_inputs = [serial.Serial('/dev/ttyUSB' + str(i)) for i in range(SERIAL_ARDUINO_COUNT)]  # creates SERIAL_ARDUINO_COUNT serial inputs
     """Each serial in represents an arduino plugged in VIA USB. Each arduino requires a separate serial instance"""
