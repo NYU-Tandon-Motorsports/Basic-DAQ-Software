@@ -45,13 +45,18 @@ def main():
     now = datetime.now()
     log = open(os.getcwd()+"/datalogs/serialdata_" + now.strftime("%m%d%Y_%H-%M-%S") + ".txt", "x")  # timestamping the text file and making a new log
     ## serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
+    log.write("Arduino data obtained from USB connection on " + now.strftime("%m/%d/%Y %H:%M:%S")+"\n\n")
+    log.write("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
+    print("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     serial_inputs = [serial.Serial('/dev/ttyUSB' + str(i)) for i in range(SERIAL_ARDUINO_COUNT)]  # creates SERIAL_ARDUINO_COUNT serial inputs
+    log.write("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
+    print("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     """Each serial in represents an arduino plugged in VIA USB. Each arduino requires a separate serial instance"""
     # serial_in2 = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
-    for i in range(0, 500):
+    for i in range(0, 500): # Condition for when to stop the program
         for serial_in in serial_inputs:
             output = parse_serial(serial_in)
-            if output != "" and output is not None and ord(output[0])!=0:
+            if output != "" and output is not None and ord(output[0]) != 0:
                 log.write(bytes(output, 'utf-8').decode('utf-8','ignore') + "\n")
     for serial_in in serial_inputs:
         serial_in.close()
