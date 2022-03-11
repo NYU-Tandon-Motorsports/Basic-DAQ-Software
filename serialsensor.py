@@ -51,8 +51,8 @@ def main():
     for i in range(0, 500):
         for serial_in in serial_inputs:
             output = parse_serial(serial_in)
-            if output != "":
-                log.write(output + "\n")
+            if output != "" and output is not None and ord(output[0])!=0:
+                log.write(bytes(output, 'utf-8').decode('utf-8','ignore') + "\n")
     for serial_in in serial_inputs:
         serial_in.close()
     log.close()
