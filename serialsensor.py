@@ -35,7 +35,7 @@ def parse_serial(serial_in):
             time = float(data[6])
             output = name + " ID = " + str(sense_id) + " " + str(series_names) + " " + str(outputs) + " " + str(units) + " t = " + str(time) + "s"  # logged output
             print(output)
-            driver_telemetry.send_data(data)
+            driver_telemetry.send_data(sense_id, name, num_outputs, series_names, outputs, units, time)
             # TODO Send packet with these datapoints to the SQL server
         else:
             print(output)  # unmarked serial input

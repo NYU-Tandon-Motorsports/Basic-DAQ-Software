@@ -26,11 +26,9 @@ def display_steering(angle):
 
 # TODO make functions for all of the quantities we want the driver to see during the race
 
-def send_data(data):
-    if len(data) != 7:
-        raise Exception("Data must be length 7 in correct format (see sensorformat.txt")
-    if data[0] == 2:
-        display_speed(data[4][0])
-    elif data[0] == 1:
-        display_steering(data[4][0])
+def send_data(ID, name, num_outputs, series_names, outputs, units, time):
+    if ID == HALL_EFFECT:
+        display_speed(outputs[0])
+    elif ID == STEERING_ANGLE:
+        display_steering(outputs[0])
 
