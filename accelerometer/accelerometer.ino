@@ -95,12 +95,17 @@ void loop(void)
   myFile=SD.open("test.txt",FILE_WRITE);
   myFile.seek(EOF);
   // Display the floating point data
-  Serial.print("X: ");
+  Serial.print("### 0 ");
+  Serial.print("DOF9 ");
+  Serial.print("3 ");
+  Serial.print("x,y,z ");
   Serial.print(euler.x());
-  Serial.print(" Y: ");
+  Serial.print(",");
   Serial.print(euler.y());
-  Serial.print(" Z: ");
+  Serial.print(",");
   Serial.print(euler.z());
+  Serial.print(" ");
+  Serial.print("m/s2, m/s2, m/s2");
   Serial.print("\n");
 
   /*
