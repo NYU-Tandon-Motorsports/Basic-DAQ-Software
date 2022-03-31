@@ -3,11 +3,12 @@ import serial
 from datetime import datetime
 import driver_telemetry
 import datapoint
+from formulas import Formulas
 from datapoint import Datapoint
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 
 
-def parse_serial(serial_in):
+def parse_serial(serial_in, formula_calc):
     raw = serial_in.readline()
     output = ""
     try:  # the try block is here because the serial stream can sometimes have extraneous bytes that cant be converted to plain text such as 00, 0A, etc.
@@ -23,6 +24,7 @@ def parse_serial(serial_in):
             print(output)
         elif output[0:3] == "$$$":
             data = datapoint.get_datapoint_from_arduino_raw(output)
+            formula_calc.apply_calculation(data)
             output = str(data)
             print(output)
             driver_telemetry.send_data(data)
@@ -45,9 +47,10 @@ def main():
     print("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     """Each serial in represents an arduino plugged in VIA USB. Each arduino requires a separate serial instance"""
     # serial_in2 = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
+    formula_calc= Formulas()
     for i in range(0, 500): # Condition for when to stop the program
         for serial_in in serial_inputs:
-            output = parse_serial(serial_in)
+            output = parse_serial(serial_in, formula_calc)
             if output != "" and output is not None and ord(output[0]) != 0:
                 log.write(bytes(output, 'utf-8').decode('utf-8','ignore') + "\n")
     for serial_in in serial_inputs:

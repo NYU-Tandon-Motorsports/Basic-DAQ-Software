@@ -24,6 +24,7 @@ class Formulas:
     def __init__(self):
         now = datetime.now()
         self.log = open(os.getcwd() + "/datalogs/Formulas_" + now.strftime("%m%d%Y_%H-%M-%S") + ".txt","x")  # timestamping the text file and making a new log
+        self.log.write("Test formuls\n")
     def apply_calculation(self, data_point):
         if data_point.sense_id == HALL_EFFECT:
             calculate_speed(data_point)
