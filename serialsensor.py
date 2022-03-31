@@ -1,9 +1,9 @@
 import os
-
 import serial
 from datetime import datetime
 import driver_telemetry
-
+import datapoint
+from datapoint import Datapoint
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 
 
@@ -22,20 +22,10 @@ def parse_serial(serial_in):
             output = "ERROR: " + output[3:]  # error
             print(output)
         elif output[0:3] == "$$$":
-            data = output[3:]
-            data = data.split(' ')  # MUST BE OF LENGTH 7. It is essentially being treated as a struct with 7 fields
-            if len(data) != 7:
-                raise Exception(output + " is in incorrect format. There must be 7 space-delimited elements (see sensorformat.txt).")
-            sense_id = int(data[0])  # see sensorformat.txt for info on format for serial stream
-            name = data[1]
-            num_outputs = int(data[2])
-            series_names = data[3].split(',')  # splits comma delimited vector inputs
-            outputs = [float(var) for var in data[4].split(',')]  # splits comma delimited vector inputs and converts the values from string to float
-            units = data[5].split(',')
-            time = float(data[6])
-            output = name + " ID = " + str(sense_id) + " " + str(series_names) + " " + str(outputs) + " " + str(units) + " t = " + str(time) + "s"  # logged output
+            data = datapoint.get_datapoint_from_arduino_raw(output)
+            output = str(data)
             print(output)
-            driver_telemetry.send_data(sense_id, name, num_outputs, series_names, outputs, units, time)
+            driver_telemetry.send_data(data)
             # TODO Send packet with these datapoints to the SQL server
         else:
             print(output)  # unmarked serial input
@@ -50,7 +40,7 @@ def main():
     log.write("Arduino data obtained from USB connection on " + now.strftime("%m/%d/%Y %H:%M:%S")+"\n\n")
     log.write("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
     print("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
-    serial_inputs = [serial.Serial('/dev/ttyUSB' + str(i)) for i in range(SERIAL_ARDUINO_COUNT)]  # creates SERIAL_ARDUINO_COUNT serial inputs
+    serial_inputs = [serial.Serial('/dev/ttyUSB' + str(i), 9600, timeout=1) for i in range(SERIAL_ARDUINO_COUNT)]  # creates SERIAL_ARDUINO_COUNT serial inputs
     log.write("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
     print("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     """Each serial in represents an arduino plugged in VIA USB. Each arduino requires a separate serial instance"""
