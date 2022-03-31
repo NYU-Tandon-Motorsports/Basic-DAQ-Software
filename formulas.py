@@ -25,10 +25,6 @@ class Formulas:
         now = datetime.now()
         self.log = open(os.getcwd() + "/datalogs/Formulas_" + now.strftime("%m%d%Y_%H-%M-%S") + ".txt","x")  # timestamping the text file and making a new log
         self.log.write("Test formuls\n")
-    def apply_calculation(self, data_point):
-        if data_point.sense_id == HALL_EFFECT:
-            calculate_speed(data_point)
-
     def calculate_speed(self, data_point):
         """
          This method is the same as the MATLAB method in the project directoy. We use a Fast Fourier transform to find the dominant frequency
@@ -60,6 +56,10 @@ class Formulas:
         data_point.outputs = [frequency]
         data_point.units = ["mph"]
         return frequency
+
+    def apply_calculation(self, data_point):
+        if data_point.sense_id == HALL_EFFECT:
+            self.calculate_speed(data_point)
 
 
 
