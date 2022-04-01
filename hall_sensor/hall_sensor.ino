@@ -15,7 +15,7 @@ void loop() {
           voltage[i] = analogRead(A1);
           delay(1);
     }
-    Serial.print("$$$2 Hall_Signal 100 voltage  ");
+    Serial.print("$$$2 Hall_Signal 100 voltage ");
     for (int i = 0; i<100; i++)
     {
         Serial.print(voltage[i]);
