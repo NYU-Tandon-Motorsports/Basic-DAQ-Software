@@ -42,8 +42,8 @@ class Formulas:
         nfft = 512
         y = np.fft.fft(np.array(x), nfft)       #apply fourier transform
         y = np.absolute(y * y)                   #raw power spectrum density
-        lst =  y.tolist()                       #convert NumPY array to list
-        lst = y[1:1+nfft/2]                     #truncate to half spectrum
+        lst =  list(y.tolist())                       #convert NumPY array to list
+        lst = lst[1:1+int(nfft/2)]                     #truncate to half spectrum
         m = max(lst)                            #get max value
         index = lst.index(m)                    #find index of max value
         f_scale = [i * Fs / nfft for i in range(int(nfft/2)+1)]  #scale index to frequency

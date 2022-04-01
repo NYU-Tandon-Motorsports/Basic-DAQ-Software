@@ -1,0 +1,4 @@
+Arduino data obtained from USB connection on 03/10/2022 21:37:21
+
+DAQ: Initializing 1 Arduino(s)
+DAQ: Successfully Initialized 1 Arduino(s)
