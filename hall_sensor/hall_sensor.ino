@@ -1,19 +1,29 @@
 void setup() 
 {
-    pinMode(A0,INPUT);
-    pinMode(A2,INPUT);
-    analogReference(EXTERNAL);
+    pinMode(A1,INPUT);
+    //analogReference(EXTERNAL);
     Serial.begin(9600);
-    Serial.println("###Potentiometer + Hall effect Test");
+    Serial.println("###Hall effect Test: IF ITS NOT WORKING, MAKE SURE THE MAGNET IS IN THE RIGHT ORIENTATION!!!");
 }
 
 void loop() {
-    double voltage = analogRead(A0);
     //Serial.print("$$$1 SteeringAngle 1 voltage ");
     //Serial.print(voltage);
-    //Serial.print(" V ");
-    //Serial.println(millis()/1000.0);
-    Serial.println(analogRead(A2));
-    Serial.println(digitalRead(A2));
-    delay(100);
+
+    int voltage[100];
+    for(int i = 0; i<100; i++){
+          voltage[i] = analogRead(A1);
+          delay(1);
+    }
+    Serial.print("$$$2 Hall_Signal 100 voltage  ");
+    for (int i = 0; i<100; i++)
+    {
+        Serial.print(voltage[i]);
+        if (i != 99)
+        {
+          Serial.print(",");
+        }
+    }
+    Serial.print(" V ");
+    Serial.println(millis()/1000.0);
 }
