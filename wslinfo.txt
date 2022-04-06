@@ -1,0 +1,14 @@
+How to run serialsensor on WSL:
+
+https://docs.microsoft.com/en-us/windows/wsl/connect-usb
+
+Install usbipd and follow the tutorial on the website and run the usbipd command in WINDOWS ELEVATED command prompt or powershell
+
+usbipd wsl list
+usbipd wsl attach --busid <busid>
+
+Then in your linux terminal, you need to chmod the usb device so the software can access it:
+
+sudo chmod 666 /dev/ttyUSB0
+
+Note: you will need to repeat this command for each arduino connected.

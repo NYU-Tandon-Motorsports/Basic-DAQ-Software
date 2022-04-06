@@ -2,6 +2,7 @@ import os
 import serial
 from datetime import datetime
 import driver_telemetry
+import mercury_telemetry_pipeline
 import datapoint
 from formulas import Formulas
 from datapoint import Datapoint
@@ -19,9 +20,11 @@ def parse_serial(serial_in, formula_calc):
         elif output[0:3] == "###":
             output = "INFO: " + output[3:]  # info
             print(output)
+            mercury_telemetry_pipeline.send_log(output)
         elif output[0:3] == "!!!":
             output = "ERROR: " + output[3:]  # error
             print(output)
+            mercury_telemetry_pipeline.send_log(output)
         elif output[0:3] == "$$$":
             data = datapoint.get_datapoint_from_arduino_raw(output)
             formula_calc.apply_calculation(data)
@@ -29,6 +32,7 @@ def parse_serial(serial_in, formula_calc):
             print(output)
             driver_telemetry.send_data(data)
             # TODO Send packet with these datapoints to the SQL server
+            mercury_telemetry_pipeline.send_packet(data)
         else:
             print(output)  # unmarked serial input
     except UnicodeDecodeError:  # serial decode didnt work
@@ -42,12 +46,17 @@ def main():
     log.write("Arduino data obtained from USB connection on " + now.strftime("%m/%d/%Y %H:%M:%S")+"\n\n")
     log.write("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
     print("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
+    mercury_telemetry_pipeline.send_log("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     serial_inputs = [serial.Serial('/dev/ttyUSB' + str(i), 9600, timeout=1) for i in range(SERIAL_ARDUINO_COUNT)]  # creates SERIAL_ARDUINO_COUNT serial inputs
     log.write("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
     print("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
+    mercury_telemetry_pipeline.send_log("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     """Each serial in represents an arduino plugged in VIA USB. Each arduino requires a separate serial instance"""
     # serial_in2 = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
     formula_calc= Formulas()
+    log.write("Initializing Formulas\n")
+    print("Initializing Formulas")
+    mercury_telemetry_pipeline.send_log("Initializing Formulas")
     for i in range(0, 500): # Condition for when to stop the program
         for serial_in in serial_inputs:
             output = parse_serial(serial_in, formula_calc)
@@ -55,6 +64,8 @@ def main():
                 log.write(bytes(output, 'utf-8').decode('utf-8','ignore') + "\n")
     for serial_in in serial_inputs:
         serial_in.close()
+    log.write("DAQ Program exiting with code 0\n")
+    mercury_telemetry_pipeline.send_log("DAQ Program exiting with code 0")
     log.close()
     exit()
 
