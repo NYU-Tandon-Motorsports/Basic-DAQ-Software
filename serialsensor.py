@@ -1,15 +1,16 @@
 import os
+import time
 import serial
 from datetime import datetime
 import driver_telemetry
-import mercury_telemetry_pipeline
+from mercury_telemetry_pipeline import Pipeline
 import datapoint
 from formulas import Formulas
 from datapoint import Datapoint
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 
 
-def parse_serial(serial_in, formula_calc):
+def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline):
     raw = serial_in.readline()
     output = ""
     try:  # the try block is here because the serial stream can sometimes have extraneous bytes that cant be converted to plain text such as 00, 0A, etc.
@@ -26,13 +27,19 @@ def parse_serial(serial_in, formula_calc):
             print(output)
             mercury_telemetry_pipeline.send_log(output)
         elif output[0:3] == "$$$":
-            data = datapoint.get_datapoint_from_arduino_raw(output)
-            formula_calc.apply_calculation(data)
-            output = str(data)
-            print(output)
-            driver_telemetry.send_data(data)
-            # TODO Send packet with these datapoints to the SQL server
-            mercury_telemetry_pipeline.send_packet(data)
+            error = False
+            data = None
+            try:
+                data = datapoint.get_datapoint_from_arduino_raw(output)
+            except Exception as e:
+                print(e)
+                error = True
+            if (error == False):
+                formula_calc.apply_calculation(data)
+                output = str(data)
+                print(output)
+                driver_telemetry.send_data(data)
+                mercury_telemetry_pipeline.send_packet(data)
         else:
             print(output)  # unmarked serial input
     except UnicodeDecodeError:  # serial decode didnt work
@@ -41,6 +48,7 @@ def parse_serial(serial_in, formula_calc):
 
 def main():
     now = datetime.now()
+    mercury_telemetry_pipeline = Pipeline()
     log = open(os.getcwd()+"/datalogs/serialdata_" + now.strftime("%m%d%Y_%H-%M-%S") + ".txt", "x")  # timestamping the text file and making a new log
     ## serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
     log.write("Arduino data obtained from USB connection on " + now.strftime("%m/%d/%Y %H:%M:%S")+"\n\n")
@@ -57,13 +65,14 @@ def main():
     log.write("Initializing Formulas\n")
     print("Initializing Formulas")
     mercury_telemetry_pipeline.send_log("Initializing Formulas")
-    for i in range(0, 500): # Condition for when to stop the program
+    for i in range(0, 1000): # Condition for when to stop the program
         for serial_in in serial_inputs:
-            output = parse_serial(serial_in, formula_calc)
+            output = parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline)
             if output != "" and output is not None and ord(output[0]) != 0:
                 log.write(bytes(output, 'utf-8').decode('utf-8','ignore') + "\n")
     for serial_in in serial_inputs:
         serial_in.close()
+    time.sleep(2)
     log.write("DAQ Program exiting with code 0\n")
     mercury_telemetry_pipeline.send_log("DAQ Program exiting with code 0")
     log.close()

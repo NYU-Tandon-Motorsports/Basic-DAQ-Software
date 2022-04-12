@@ -24,7 +24,7 @@ def display_steering(angle):
 # TODO make functions for all of the quantities we want the driver to see during the race
 
 def send_data(data : Datapoint):
-    if data.sense_id == formulas.SPEED:
+    if data.sense_id == formulas.FOURIER_SPEED:
         display_speed(data.outputs[0])
     elif data.sense_id == formulas.STEERING_ANGLE:
         display_steering(data.outputs[0])

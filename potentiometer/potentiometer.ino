@@ -11,5 +11,5 @@ void loop() {
     Serial.print(voltage);
     Serial.print(" V ");
     Serial.println(millis()/1000.0);
-    delay(100);
+    delay(10);
 }
