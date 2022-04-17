@@ -95,7 +95,7 @@ void loop(void)
   myFile=SD.open("test.txt",FILE_WRITE);
   myFile.seek(EOF);
   // Display the floating point data
-  Serial.print("### 0 ");
+  Serial.print("$$$0 ");
   Serial.print("DOF9 ");
   Serial.print("3 ");
   Serial.print("x,y,z ");
@@ -105,9 +105,8 @@ void loop(void)
   Serial.print(",");
   Serial.print(euler.z());
   Serial.print(" ");
-  Serial.print("m/s2, m/s2, m/s2");
-  Serial.print("\n");
-
+  Serial.print("m/s2,m/s2,m/s2 ");
+  Serial.println(millis()/1000.0);
   /*
   // Quaternion data
   imu::Quaternion quat = bno.getQuat();

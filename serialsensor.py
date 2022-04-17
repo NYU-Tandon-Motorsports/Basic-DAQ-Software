@@ -6,8 +6,19 @@ import driver_telemetry
 from mercury_telemetry_pipeline import Pipeline
 import datapoint
 from formulas import Formulas
+from concurrent.futures import ThreadPoolExecutor
+import concurrent.futures
 from datapoint import Datapoint
-SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
+SERIAL_ARDUINO_COUNT = 2  # hard coded value for now will determine how many arduinos there are
+
+def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
+    start_time = time.time() * 1000
+    while(time.time() * 1000 <= start_time + 1000 * 60):  # Condition for when to stop the program currently 60 seconds
+        output = parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline)
+        if output != "" and output is not None and ord(output[0]) != 0:
+            log.write(bytes(output, 'utf-8').decode('utf-8', 'ignore') + "\n")
+    serial_in.close()
+
 
 
 def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline):
@@ -47,6 +58,7 @@ def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline):
     return output
 
 def main():
+
     now = datetime.now()
     mercury_telemetry_pipeline = Pipeline()
     log = open(os.getcwd()+"/datalogs/serialdata_" + now.strftime("%m%d%Y_%H-%M-%S") + ".txt", "x")  # timestamping the text file and making a new log
@@ -65,14 +77,14 @@ def main():
     log.write("Initializing Formulas\n")
     print("Initializing Formulas")
     mercury_telemetry_pipeline.send_log("Initializing Formulas")
-    for i in range(0, 1000): # Condition for when to stop the program
-        for serial_in in serial_inputs:
-            output = parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline)
-            if output != "" and output is not None and ord(output[0]) != 0:
-                log.write(bytes(output, 'utf-8').decode('utf-8','ignore') + "\n")
+    executor = ThreadPoolExecutor(max_workers=SERIAL_ARDUINO_COUNT)
+    futures = []
     for serial_in in serial_inputs:
-        serial_in.close()
+        args = [serial_in, formula_calc, mercury_telemetry_pipeline, log]
+        futures.append(executor.submit(collect_data, *args))
+    concurrent.futures.wait(futures)
     time.sleep(2)
+    print("DAQ Program exiting with code 0")
     log.write("DAQ Program exiting with code 0\n")
     mercury_telemetry_pipeline.send_log("DAQ Program exiting with code 0")
     log.close()

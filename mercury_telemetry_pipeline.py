@@ -10,7 +10,8 @@ REMOTE_URL = "http://nyu-baja-telemetry.herokuapp.com/measurement/"
 
 SENSOR_ID_DICT = {
     formulas.LOG : 2,
-    formulas.STEERING_ANGLE: 1
+    formulas.STEERING_ANGLE: 1,
+    formulas.DOF9: 3
 }
 
 class Pipeline:
