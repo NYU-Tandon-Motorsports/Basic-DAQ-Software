@@ -9,7 +9,7 @@ from formulas import Formulas
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 from datapoint import Datapoint
-SERIAL_ARDUINO_COUNT = 2  # hard coded value for now will determine how many arduinos there are
+SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time() * 1000

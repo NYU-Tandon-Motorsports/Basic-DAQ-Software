@@ -1,3 +1,9 @@
+
+int previousVoltage = 128;
+int thresholdVoltage = 10;
+int sampleCount = 1;
+double FS = 787;
+double k = 1/FS;
 void setup() 
 {
     pinMode(A1,INPUT);
@@ -6,24 +12,26 @@ void setup()
     Serial.println("###Hall effect Test: IF ITS NOT WORKING, MAKE SURE THE MAGNET IS IN THE RIGHT ORIENTATION!!!");
 }
 
+
 void loop() {
     //Serial.print("$$$1 SteeringAngle 1 voltage ");
     //Serial.print(voltage);
-
-    int voltage[100];
-    for(int i = 0; i<100; i++){
-          voltage[i] = analogRead(A1);
-          delay(1);
-    }
-    Serial.print("$$$2 Hall_Signal 100 voltage ");
-    for (int i = 0; i<100; i++)
+    
+    int voltage = analogRead(A1);
+    if (voltage > thresholdVoltage && previousVoltage > thresholdVoltage)
     {
-        Serial.print(voltage[i]);
-        if (i != 99)
-        {
-          Serial.print(",");
-        }
+        sampleCount++;
     }
-    Serial.print(" V ");
-    Serial.println(millis()/1000.0);
+    else if (voltage < thresholdVoltage && previousVoltage > thresholdVoltage)
+    {
+         int n = sampleCount;
+         double T = n * k;
+         Serial.print("$$$9 Hall_Sensor 1 speed ");
+         Serial.print(1/T * 60);
+         Serial.print(" RPM ");
+         Serial.println(millis()/1000.0);
+         sampleCount = 1;
+    }
+    previousVoltage = voltage;
+    delay(1);   
 }

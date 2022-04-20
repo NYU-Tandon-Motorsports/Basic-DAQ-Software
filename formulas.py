@@ -12,6 +12,7 @@ HALL_EFFECT = 2
 FUEL = 3
 CVT_TEMP = 4
 GPS = 5
+RPM = 9
 #virtual sensors
 FOURIER_SPEED = 6
 LOG = 7

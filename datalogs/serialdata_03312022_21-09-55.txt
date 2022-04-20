@@ -1,5 +1,0 @@
-Arduino data obtained from USB connection on 03/31/2022 21:09:55
-
-DAQ: Initializing 1 Arduino(s)
-DAQ: Successfully Initialized 1 Arduino(s)
-INFO: Hall effect Test: IF ITS NOT WORKING, MAKE SURE THE MAGNET IS IN THE RIGHT ORIENTATION!!!

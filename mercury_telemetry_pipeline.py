@@ -11,7 +11,8 @@ REMOTE_URL = "http://nyu-baja-telemetry.herokuapp.com/measurement/"
 SENSOR_ID_DICT = {
     formulas.LOG : 2,
     formulas.STEERING_ANGLE: 1,
-    formulas.DOF9: 3
+    formulas.DOF9: 3,
+    formulas.RPM: 4
 }
 
 class Pipeline:
@@ -46,7 +47,7 @@ class Pipeline:
         self.executor.submit(self.post, *arg)
 
     def post(self, jsonbody):
-        print(requests.post(LOCAL_URL, json=jsonbody))
+        print(requests.post(REMOTE_URL, json=jsonbody))
 
 
 
