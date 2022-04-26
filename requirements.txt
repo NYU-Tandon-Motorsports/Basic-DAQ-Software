@@ -1,1 +1,4 @@
 requests
+RPi.GPIO
+adafruit-blinka
+adafruit-circuitpython-bme280
