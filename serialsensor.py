@@ -34,6 +34,7 @@ def collect_temperatures(formula_calc, mercury_telemetry_pipeline, log):
         driver_telemetry.send_data(data)
         mercury_telemetry_pipeline.send_packet(data)
         log.write(output + "\n")
+        time.sleep(0.01)
 
 
 
