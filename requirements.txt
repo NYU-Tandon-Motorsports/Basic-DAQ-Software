@@ -1,4 +1,4 @@
 requests
 RPi.GPIO
 adafruit-blinka
-adafruit-circuitpython-bme280
+adafruit-circuitpython-max31855

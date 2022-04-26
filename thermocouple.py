@@ -1,19 +1,17 @@
+# SPDX-FileCopyrightText: 2021 ladyada for Adafruit Industries
+# SPDX-License-Identifier: MIT
+
+import time
 import board
 import digitalio
-import busio
+import adafruit_max31855
 
-print("Hello blinka!")
+spi = board.SPI()
+cs = digitalio.DigitalInOut(board.D5)
 
-# Try to great a Digital input
-pin = digitalio.DigitalInOut(board.D4)
-print("Digital IO ok!")
-
-# Try to create an I2C device
-i2c = busio.I2C(board.SCL, board.SDA)
-print("I2C ok!")
-
-# Try to create an SPI device
-spi = busio.SPI(board.SCLK, board.MOSI, board.MISO)
-print("SPI ok!")
-
-print("done!")
+max31855 = adafruit_max31855.MAX31855(spi, cs)
+while True:
+    tempC = max31855.temperature
+    tempF = tempC * 9 / 5 + 32
+    print("Temperature: {} C {} F ".format(tempC, tempF))
+    time.sleep(2.0)
