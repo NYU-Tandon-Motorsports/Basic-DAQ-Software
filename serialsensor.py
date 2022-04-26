@@ -93,7 +93,7 @@ def main():
     log.write("Initializing Formulas\n")
     print("Initializing Formulas")
     mercury_telemetry_pipeline.send_log("Initializing Formulas")
-    executor = ThreadPoolExecutor(max_workers=SERIAL_ARDUINO_COUNT)
+    executor = ThreadPoolExecutor(max_workers=SERIAL_ARDUINO_COUNT + ENABLE_THERMOCOUPLE)
     futures = []
     for serial_in in serial_inputs:
         args = [serial_in, formula_calc, mercury_telemetry_pipeline, log]
