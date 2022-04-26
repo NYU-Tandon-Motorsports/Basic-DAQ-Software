@@ -26,13 +26,17 @@ def collect_temperatures(formula_calc, mercury_telemetry_pipeline, log):
     thermocouple = Thermocouple()
     start_time = time.time() * 1000
     while (time.time() * 1000 <= start_time + 1000 * 60):  # Condition for when to stop the program currently 60 seconds
-        temperature = thermocouple.getTemperature()
-        data = Datapoint(formulas.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], "C", time.time() * 1000 * 1000 - start_time * 1000)
-        formula_calc.apply_calculation(data)
-        output = str(data)
+        output = ""
+        try:
+            temperature = thermocouple.getTemperature()
+            data = Datapoint(formulas.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], "C", time.time() * 1000 * 1000 - start_time * 1000)
+            formula_calc.apply_calculation(data)
+            output = str(data)
+            driver_telemetry.send_data(data)
+            mercury_telemetry_pipeline.send_packet(data)
+        except Exception as e:
+            output = str(e)
         print(output)
-        driver_telemetry.send_data(data)
-        mercury_telemetry_pipeline.send_packet(data)
         log.write(output + "\n")
         time.sleep(0.01)
 
