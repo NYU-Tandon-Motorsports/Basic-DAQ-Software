@@ -12,7 +12,8 @@ SENSOR_ID_DICT = {
     formulas.LOG : 2,
     formulas.STEERING_ANGLE: 1,
     formulas.DOF9: 3,
-    formulas.RPM: 4
+    formulas.RPM: 4,
+    formulas.CVT_TEMP: 4,
 }
 
 class Pipeline:
