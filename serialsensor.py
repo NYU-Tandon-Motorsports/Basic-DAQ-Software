@@ -1,5 +1,7 @@
 import os
 import time
+import traceback
+
 import serial
 from datetime import datetime
 import driver_telemetry
@@ -22,8 +24,7 @@ def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
             log.write(bytes(output, 'utf-8').decode('utf-8', 'ignore') + "\n")
     serial_in.close()
 
-def collect_temperatures(formula_calc, mercury_telemetry_pipeline, log):
-    thermocouple = Thermocouple()
+def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
     while (time.time() <= start_time +  60):  # Condition for when to stop the program currently 60 seconds
         output = ""
@@ -35,7 +36,7 @@ def collect_temperatures(formula_calc, mercury_telemetry_pipeline, log):
             driver_telemetry.send_data(data)
             mercury_telemetry_pipeline.send_packet(data)
         except Exception as e:
-            output = str(e)
+            output = str(traceback.format_exc())
         print(output)
         log.write(output + "\n")
         time.sleep(0.01)
@@ -94,6 +95,16 @@ def main():
     mercury_telemetry_pipeline.send_log("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     """Each serial in represents an arduino plugged in VIA USB. Each arduino requires a separate serial instance"""
     # serial_in2 = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
+    thermocouple = None
+    if (ENABLE_THERMOCOUPLE):
+        log.write("DAQ: Testing Thermocouple\n")
+        print("DAQ: Testing Thermocouple")
+        mercury_telemetry_pipeline.send_log("DAQ: Testing Thermocouple")
+        thermocouple = Thermocouple()
+        test = thermocouple.getTemperature()
+        log.write("DAQ: Thermocouple test Successful\n")
+        print("DAQ: Thermocouple test Successful")
+        mercury_telemetry_pipeline.send_log("DAQ: Thermocouple test Successful")
     formula_calc= Formulas()
     log.write("Initializing Formulas\n")
     print("Initializing Formulas")
@@ -105,7 +116,7 @@ def main():
         futures.append(executor.submit(collect_data, *args))
 
     if (ENABLE_THERMOCOUPLE):
-        args = [formula_calc, mercury_telemetry_pipeline, log]
+        args = [thermocouple, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_temperatures, *args))
 
     concurrent.futures.wait(futures)
