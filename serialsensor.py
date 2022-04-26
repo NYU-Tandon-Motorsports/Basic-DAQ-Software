@@ -15,8 +15,8 @@ SERIAL_ARDUINO_COUNT = 0  # hard coded value for now will determine how many ard
 ENABLE_THERMOCOUPLE = True
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
-    start_time = time.time() * 1000
-    while(time.time() * 1000 <= start_time + 1000 * 60):  # Condition for when to stop the program currently 60 seconds
+    start_time = time.time()
+    while(time.time()  <= start_time + 60):  # Condition for when to stop the program currently 60 seconds
         output = parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline)
         if output != "" and output is not None and ord(output[0]) != 0:
             log.write(bytes(output, 'utf-8').decode('utf-8', 'ignore') + "\n")
@@ -24,12 +24,12 @@ def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
 
 def collect_temperatures(formula_calc, mercury_telemetry_pipeline, log):
     thermocouple = Thermocouple()
-    start_time = time.time() * 1000
-    while (time.time() * 1000 <= start_time + 1000 * 60):  # Condition for when to stop the program currently 60 seconds
+    start_time = time.time()
+    while (time.time() <= start_time +  60):  # Condition for when to stop the program currently 60 seconds
         output = ""
         try:
             temperature = thermocouple.getTemperature()
-            data = Datapoint(formulas.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], "C", time.time() * 1000 * 1000 - start_time * 1000)
+            data = Datapoint(formulas.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], "C", time.time() - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
