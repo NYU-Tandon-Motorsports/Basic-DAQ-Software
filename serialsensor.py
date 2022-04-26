@@ -6,10 +6,13 @@ import driver_telemetry
 from mercury_telemetry_pipeline import Pipeline
 import datapoint
 from formulas import Formulas
+import formulas
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
+from thermocouple import Thermocouple
 from datapoint import Datapoint
-SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
+SERIAL_ARDUINO_COUNT = 0  # hard coded value for now will determine how many arduinos there are
+ENABLE_THERMOCOUPLE = True
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time() * 1000
@@ -18,6 +21,19 @@ def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
         if output != "" and output is not None and ord(output[0]) != 0:
             log.write(bytes(output, 'utf-8').decode('utf-8', 'ignore') + "\n")
     serial_in.close()
+
+def collect_temperatures(formula_calc, mercury_telemetry_pipeline, log):
+    thermocouple = Thermocouple()
+    start_time = time.time() * 1000
+    while (time.time() * 1000 <= start_time + 1000 * 60):  # Condition for when to stop the program currently 60 seconds
+        temperature = thermocouple.getTemperature()
+        data = Datapoint(formulas.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], "C", time.time() * 1000 * 1000 - start_time * 1000)
+        formula_calc.apply_calculation(data)
+        output = str(data)
+        print(output)
+        driver_telemetry.send_data(data)
+        mercury_telemetry_pipeline.send_packet(data)
+        log.write(output + "\n")
 
 
 
@@ -82,6 +98,11 @@ def main():
     for serial_in in serial_inputs:
         args = [serial_in, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_data, *args))
+
+    if (ENABLE_THERMOCOUPLE):
+        args = [formula_calc, mercury_telemetry_pipeline, log]
+        futures.append(executor.submit(collect_temperatures, *args))
+
     concurrent.futures.wait(futures)
     time.sleep(2)
     print("DAQ Program exiting with code 0")
