@@ -13,7 +13,7 @@ from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 from thermocouple import Thermocouple
 from datapoint import Datapoint
-SERIAL_ARDUINO_COUNT = 0  # hard coded value for now will determine how many arduinos there are
+SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 ENABLE_THERMOCOUPLE = True
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
@@ -36,7 +36,12 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
             driver_telemetry.send_data(data)
             mercury_telemetry_pipeline.send_packet(data)
         except Exception as e:
-            output = str(traceback.format_exc())
+            output = str(e)
+            if output == "short circuit to ground":
+                output = "INFO: Thermocouple " + output
+            else:
+                output = "ERROR: Thermocouple " + output
+            mercury_telemetry_pipeline.send_log(output)
         print(output)
         log.write(output + "\n")
         time.sleep(0.01)
