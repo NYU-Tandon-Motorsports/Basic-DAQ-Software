@@ -12,7 +12,7 @@ SENSOR_ID_DICT = {
     formulas.LOG : 2,
     formulas.STEERING_ANGLE: 1,
     formulas.DOF9: 3,
-    formulas.RPM: 4,
+    formulas.RPM: 5,
     formulas.CVT_TEMP: 4,
 }
 
@@ -33,7 +33,7 @@ class Pipeline:
         jsonbody = {
         "sensor_id": SENSOR_ID_DICT[data.sense_id],
         "values": dict(zip(data.series_names,data.outputs)),
-        "date": datetime.now().isoformat(),
+        "date": datetime.now().isoformat(timespec='milliseconds'),
         }
         arg = [jsonbody]
         self.executor.submit(self.post, *arg)
@@ -42,7 +42,7 @@ class Pipeline:
         jsonbody = {
         "sensor_id": SENSOR_ID_DICT[formulas.LOG],
         "values": {"log" : line},
-        "date": datetime.now().isoformat(),
+        "date": datetime.now().isoformat(timespec='milliseconds'),
         }
         arg = [jsonbody]
         self.executor.submit(self.post, *arg)

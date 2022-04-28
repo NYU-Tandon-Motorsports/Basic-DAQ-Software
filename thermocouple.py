@@ -1,6 +1,9 @@
-import board
-import digitalio
-import adafruit_max31855
+try:
+    import board
+    import digitalio
+    import adafruit_max31855
+except Exception as e:
+    print("You are not an a raspberry PI. Make sure ENABLE_THERMOCOUPLE is set to FALSE")
 
 class Thermocouple:
     def __init__(self):

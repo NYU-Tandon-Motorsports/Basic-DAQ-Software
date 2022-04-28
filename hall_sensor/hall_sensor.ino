@@ -2,7 +2,7 @@
 int previousVoltage = 128;
 int thresholdVoltage = 10;
 int sampleCount = 1;
-double FS = 787;
+double FS = 7555.2;
 double k = 1/FS;
 void setup() 
 {
@@ -32,6 +32,5 @@ void loop() {
          Serial.println(millis()/1000.0);
          sampleCount = 1;
     }
-    previousVoltage = voltage;
-    delay(1);   
+    previousVoltage = voltage;   
 }
