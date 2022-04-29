@@ -18,7 +18,7 @@ ENABLE_THERMOCOUPLE = False
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
-    while(time.time()  <= start_time + 60):  # Condition for when to stop the program currently 60 seconds
+    while(time.time()  <= start_time + 240):  # Condition for when to stop the program currently 60 seconds
         output = parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline)
         if output != "" and output is not None and ord(output[0]) != 0:
             log.write(bytes(output, 'utf-8').decode('utf-8', 'ignore') + "\n")
@@ -26,7 +26,7 @@ def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
 
 def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
-    while (time.time() <= start_time +  60):  # Condition for when to stop the program currently 60 seconds
+    while (time.time() <= start_time +  240):  # Condition for when to stop the program currently 60 seconds
         output = ""
         try:
             temperature = thermocouple.getTemperature()
