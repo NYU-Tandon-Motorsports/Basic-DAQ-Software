@@ -1,5 +1,5 @@
 from datapoint import Datapoint
-import formulas
+import sensor_ids
 #This module will be used to call methods which display stuff on the Driver HUD. We can also do some calculations in here such as deriving new quantities and displaying them.
 #One thing we must note is this is specifically for the offline stuff. If you are looking to fix data sent to the pits, see mercury-telemetry
 
@@ -24,8 +24,8 @@ def display_steering(angle):
 # TODO make functions for all of the quantities we want the driver to see during the race
 
 def send_data(data : Datapoint):
-    if data.sense_id == formulas.FOURIER_SPEED:
+    if data.sense_id == sensor_ids.FOURIER_SPEED:
         display_speed(data.outputs[0])
-    elif data.sense_id == formulas.STEERING_ANGLE:
+    elif data.sense_id == sensor_ids.STEERING_ANGLE:
         display_steering(data.outputs[0])
 

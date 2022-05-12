@@ -8,13 +8,15 @@ import driver_telemetry
 from mercury_telemetry_pipeline import Pipeline
 import datapoint
 from formulas import Formulas
-import formulas
+import sensor_ids
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 from thermocouple import Thermocouple
 from datapoint import Datapoint
-SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
+import GPS
+SERIAL_ARDUINO_COUNT = 0  # hard coded value for now will determine how many arduinos there are
 ENABLE_THERMOCOUPLE = False
+ENABLE_GPS = False
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -30,7 +32,7 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
         output = ""
         try:
             temperature = thermocouple.getTemperature()
-            data = Datapoint(formulas.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], "C", time.time() - start_time)
+            data = Datapoint(sensor_ids.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], "C", time.time() - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
@@ -40,6 +42,26 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
         print(output)
         log.write(output + "\n")
         time.sleep(0.01)
+
+def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, log):
+    start_time = time.time()
+    while (time.time() <= start_time + 240):  # Condition for when to stop the program currently 60 seconds
+        output = ""
+        raw = gps_port.readline().decode('utf-8')
+        result = GPS.parseGPS(raw)
+        if result is not None: #if result is none then we ignore and read the next serial line
+            if result == (-1,-1,-1,-1, -1, -1):
+                output = "ERROR: GPS has invalid fix. Please wait for it to recalibrate and make sure you are outside and your antenna is good"
+            else:
+                datapoints = datapoint.get_gps_datapoints(result)
+                for dp in datapoints:
+                    formula_calc.apply_calculation(dp)
+                    output += "\n" + str(dp)
+                    driver_telemetry.send_data(dp)
+                    mercury_telemetry_pipeline.send_packet(dp)
+            print(output)
+            log.write(output + "\n")
+        time.sleep(0.1)
 
 
 
@@ -89,7 +111,7 @@ def main():
     log.write("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
     print("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     mercury_telemetry_pipeline.send_log("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
-    serial_inputs = [serial.Serial('/dev/ttyUSB' + str(i), 9600, timeout=1) for i in range(SERIAL_ARDUINO_COUNT)]  # creates SERIAL_ARDUINO_COUNT serial inputs
+    serial_inputs = [serial.Serial('/dev/ttyUSB' + str(i + 4), 9600, timeout=1) for i in range(SERIAL_ARDUINO_COUNT)]  # creates SERIAL_ARDUINO_COUNT serial inputs
     log.write("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
     print("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     mercury_telemetry_pipeline.send_log("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
@@ -105,6 +127,13 @@ def main():
         log.write("DAQ: Thermocouple test Successful\n")
         print("DAQ: Thermocouple test Successful")
         mercury_telemetry_pipeline.send_log("DAQ: Thermocouple test Successful")
+    if (ENABLE_GPS):
+        log.write("DAQ: Testing GPS\n")
+        mercury_telemetry_pipeline.send_log("DAQ: Testing GPS")
+        GPS.testGPS()
+        log.write("DAQ: GPS test Successful\n")
+        print("DAQ: GPS test Successful")
+        mercury_telemetry_pipeline.send_log("DAQ: GPS test Successful")
     formula_calc= Formulas()
     log.write("Initializing Formulas\n")
     print("Initializing Formulas")
@@ -118,6 +147,10 @@ def main():
     if (ENABLE_THERMOCOUPLE):
         args = [thermocouple, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_temperatures, *args))
+    if ENABLE_GPS:
+        gps_ser = serial.Serial(GPS.port, baudrate=115200, timeout=0.5, rtscts=True, dsrdtr=True)
+        args = [gps_ser, formula_calc, mercury_telemetry_pipeline, log]
+        futures.append(executor.submit(collect_gps, *args))
 
     concurrent.futures.wait(futures)
     time.sleep(2)

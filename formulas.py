@@ -1,22 +1,12 @@
 import os
+import sensor_ids
 from datetime import datetime
 from datapoint import Datapoint
 import numpy as np
 from numpy.fft import fft
 from copy import copy
 from statistics import mean
-#physical sensors
-DOF9 = 0
-STEERING_ANGLE = 1
-HALL_EFFECT = 2
-FUEL = 3
-CVT_TEMP = 4
-GPS = 5
-RPM = 9
-#virtual sensors
-FOURIER_SPEED = 6
-LOG = 7
-RISING_FALLING_SPEED = 8
+
 class Formulas:
     """
     This class should be used to do more complex calculations of data from the sensors.
@@ -55,7 +45,7 @@ class Formulas:
         f_scale = [i * Fs / nfft for i in range(int(nfft/2)+1)]  #scale index to frequency
         frequency = f_scale[index]              #calc frequency
         self.log.write("Calculated Dominant Fourier Frequency: " + str(frequency) + " at time t = " + str(data_point.t)+"\n")
-        data_point.sense_id = FOURIER_SPEED
+        data_point.sense_id = sensor_ids.FOURIER_SPEED
         data_point.name = "Fourier Speed"
         data_point.num_outputs = 1
         data_point.series_names = ["Fourier Speed"]
@@ -79,7 +69,7 @@ class Formulas:
         periods = (rising_edges + falling_edges) / 2
         frequency = periods * (1 / sampling_time)
         self.log.write("Calculated Rising/Falling Frequency: " + str(frequency) + " at time t = " + str(data_point.t) + "\n")
-        data_point.sense_id = RISING_FALLING_SPEED
+        data_point.sense_id = sensor_ids.RISING_FALLING_SPEED
         data_point.name = "Rising Falling Speed"
         data_point.num_outputs = 1
         data_point.series_names = ["Rising Falling Speed"]
@@ -88,8 +78,7 @@ class Formulas:
         return frequency
 
     def apply_calculation(self, data_point: Datapoint):
-        if data_point.sense_id == HALL_EFFECT:
-            self.calculate_fourier_speed(data_point)
+        pass
 
 
 

@@ -1,6 +1,6 @@
 from datapoint import Datapoint
 from datetime import datetime
-import formulas
+import sensor_ids
 import requests
 from concurrent.futures import ThreadPoolExecutor
 
@@ -8,12 +8,12 @@ from concurrent.futures import ThreadPoolExecutor
 LOCAL_URL = "http://localhost:8000/measurement/"
 REMOTE_URL = "http://nyu-baja-telemetry.herokuapp.com/measurement/"
 
-SENSOR_ID_DICT = {
-    formulas.LOG : 2,
-    formulas.STEERING_ANGLE: 1,
-    formulas.DOF9: 3,
-    formulas.RPM: 5,
-    formulas.CVT_TEMP: 4,
+SENSOR_ID_DICT = {   # maps the Basic daq software sensor id to that which the user assigns in Mercury
+    sensor_ids.LOG : 2,
+    sensor_ids.STEERING_ANGLE: 1,
+    sensor_ids.DOF9: 3,
+    sensor_ids.RPM: 5,
+    sensor_ids.CVT_TEMP: 4,
 }
 
 class Pipeline:
@@ -40,7 +40,7 @@ class Pipeline:
 
     def send_log(self, line):
         jsonbody = {
-        "sensor_id": SENSOR_ID_DICT[formulas.LOG],
+        "sensor_id": SENSOR_ID_DICT[sensor_ids.LOG],
         "values": {"log" : line},
         "date": datetime.now().isoformat(timespec='milliseconds'),
         }

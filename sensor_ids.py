@@ -1,0 +1,13 @@
+#physical sensors
+DOF9 = 0
+STEERING_ANGLE = 1
+HALL_EFFECT = 2
+FUEL = 3
+CVT_TEMP = 4
+GPS = 5
+RPM = 9
+GPS_SPEED = 10
+#virtual sensors
+FOURIER_SPEED = 6
+LOG = 7
+RISING_FALLING_SPEED = 8

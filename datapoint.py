@@ -1,3 +1,6 @@
+import sensor_ids
+
+
 class Datapoint:
     def __init__(self, sense_id, name, num_outputs, series_names, outputs, units, t):
         self.sense_id = sense_id
@@ -37,3 +40,16 @@ def get_datapoint_from_arduino_raw(arduino_str):
     units = data[5].split(',')
     time = float(data[6])
     return Datapoint(sense_id, name, num_outputs, series_names, outputs, units, time)
+
+def get_gps_datapoints(gps_tuple):
+    lat_list = gps_tuple[0]
+    lat_value = float(str(int(lat_list[0]) + (float(lat_list[2])/60)))
+    lat_value *= -1 if gps_tuple[1] == "S" else 1
+    lon_list = gps_tuple[2]
+    lon_value = float(str(int(lon_list[0]) + (float(lon_list[2])/60)))
+    lon_value *= -1 if gps_tuple[3] == "W" else 1
+    speed = gps_tuple[4]
+    time = gps_tuple[5]
+    coordData = Datapoint(sensor_ids.GPS, "GPS", 2, ["lattitude", "longitude"], [lat_value, lon_value], ["degrees", "degrees"], time)
+    speedData = Datapoint(sensor_ids.GPS_SPEED, "GPS Speed", 1, "speed", speed, "knots", time)
+    return [coordData, speedData]
