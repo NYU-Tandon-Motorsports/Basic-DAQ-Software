@@ -16,7 +16,7 @@ from datapoint import Datapoint
 import GPS
 SERIAL_ARDUINO_COUNT = 0  # hard coded value for now will determine how many arduinos there are
 ENABLE_THERMOCOUPLE = False
-ENABLE_GPS = False
+ENABLE_GPS = True
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -128,8 +128,9 @@ def main():
         print("DAQ: Thermocouple test Successful")
         mercury_telemetry_pipeline.send_log("DAQ: Thermocouple test Successful")
     if (ENABLE_GPS):
-        log.write("DAQ: Testing GPS\n")
-        mercury_telemetry_pipeline.send_log("DAQ: Testing GPS")
+        print("DAQ: Testing GPS make sure the port is NOT busy")
+        log.write("DAQ: Testing GPS make sure the port is NOT busy\n")
+        mercury_telemetry_pipeline.send_log("DAQ: Testing GPS make sure the port is NOT busy")
         GPS.testGPS()
         log.write("DAQ: GPS test Successful\n")
         print("DAQ: GPS test Successful")
@@ -138,7 +139,7 @@ def main():
     log.write("Initializing Formulas\n")
     print("Initializing Formulas")
     mercury_telemetry_pipeline.send_log("Initializing Formulas")
-    executor = ThreadPoolExecutor(max_workers=SERIAL_ARDUINO_COUNT + ENABLE_THERMOCOUPLE)
+    executor = ThreadPoolExecutor(max_workers=SERIAL_ARDUINO_COUNT + ENABLE_THERMOCOUPLE + ENABLE_GPS)
     futures = []
     for serial_in in serial_inputs:
         args = [serial_in, formula_calc, mercury_telemetry_pipeline, log]

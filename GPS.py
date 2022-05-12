@@ -9,12 +9,12 @@ portwrite = "/dev/ttyUSB2"
 port = "/dev/ttyUSB1"
 
 def parseGPS(data):
-    print(data, end='') #prints raw data
+    #print(data, end='') #prints raw data
     if data[0:6] != "$GPRMC":
         return None
     sdata = data.split(",")
     if sdata[2] == 'V':
-        print("\nNo satellite data available.\n")
+        #print("\nNo satellite data available.\n")
         return (-1,-1,-1,-1,-1,-1)
     # print("-----Parsing GPRMC-----")
     time = sdata[1][0:2] + ":" + sdata[1][2:4] + ":" + sdata[1][4:6]
