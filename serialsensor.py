@@ -32,7 +32,7 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
         output = ""
         try:
             temperature = thermocouple.getTemperature()
-            data = Datapoint(sensor_ids.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], "C", time.time() - start_time)
+            data = Datapoint(sensor_ids.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], ["C"], time.time() - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
@@ -45,7 +45,7 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
 
 def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
-    while (time.time() <= start_time + 240):  # Condition for when to stop the program currently 60 seconds
+    while (time.time() <= start_time + 1800):  # Condition for when to stop the program currently 60 seconds
         output = ""
         raw = gps_port.readline().decode('utf-8')
         result = GPS.parseGPS(raw)

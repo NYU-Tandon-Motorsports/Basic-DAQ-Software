@@ -51,5 +51,5 @@ def get_gps_datapoints(gps_tuple):
     speed = gps_tuple[4]
     time = gps_tuple[5]
     coordData = Datapoint(sensor_ids.GPS, "GPS", 2, ["lattitude", "longitude"], [lat_value, lon_value], ["degrees", "degrees"], time)
-    speedData = Datapoint(sensor_ids.GPS_SPEED, "GPS Speed", 1, "speed", speed, "knots", time)
+    speedData = Datapoint(sensor_ids.GPS_SPEED, "GPS Speed", 1, ["speed"], [speed], ["knots"], time)
     return [coordData, speedData]
