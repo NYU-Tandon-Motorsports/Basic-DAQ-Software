@@ -48,7 +48,7 @@ def get_gps_datapoints(gps_tuple):
     lon_list = gps_tuple[2]
     lon_value = float(str(int(lon_list[0]) + (float(lon_list[2])/60)))
     lon_value *= -1 if gps_tuple[3] == "W" else 1
-    speed = gps_tuple[4]
+    speed = float(gps_tuple[4])
     time = gps_tuple[5]
     coordData = Datapoint(sensor_ids.GPS, "GPS", 2, ["lattitude", "longitude"], [lat_value, lon_value], ["degrees", "degrees"], time)
     speedData = Datapoint(sensor_ids.GPS_SPEED, "GPS Speed", 1, ["speed"], [speed], ["knots"], time)
