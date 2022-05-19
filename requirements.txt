@@ -2,4 +2,6 @@ requests
 RPi.GPIO
 adafruit-blinka
 adafruit-circuitpython-max31855
+adafruit-circuitpython-lis3dh
+adafruit-circuitpython-l3gd20
 numpy

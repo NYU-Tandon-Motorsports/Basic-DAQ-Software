@@ -12,9 +12,11 @@ import sensor_ids
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 from thermocouple import Thermocouple
+from piaccelerometer import Accelerometer
 from datapoint import Datapoint
 import GPS
 SERIAL_ARDUINO_COUNT = 0  # hard coded value for now will determine how many arduinos there are
+ENABLE_PIACCELEROMETER = True
 ENABLE_THERMOCOUPLE = False
 ENABLE_GPS = True
 
@@ -41,11 +43,28 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
             output = str(traceback.format_exc())
         print(output)
         log.write(output + "\n")
-        time.sleep(0.01)
+        time.sleep(0.1)
+
+def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipeline, log):
+    start_time = time.time()
+    while (time.time() <= start_time +  240):  # Condition for when to stop the program currently 60 seconds
+        output = ""
+        try:
+            acceleration = accelerometer.getAccel()
+            data = Datapoint(sensor_ids.DOF9, "Accelerometer", 3, ["x","y","z"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
+            formula_calc.apply_calculation(data)
+            output = str(data)
+            driver_telemetry.send_data(data)
+            mercury_telemetry_pipeline.send_packet(data)
+        except Exception as e:
+            output = str(traceback.format_exc())
+        print(output)
+        log.write(output + "\n")
+        time.sleep(0.1)
 
 def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
-    while (time.time() <= start_time + 1800):  # Condition for when to stop the program currently 60 seconds
+    while (time.time() <= start_time + 240):  # Condition for when to stop the program currently 60 seconds
         output = ""
         raw = gps_port.readline().decode('utf-8')
         result = GPS.parseGPS(raw)
@@ -118,6 +137,7 @@ def main():
     """Each serial in represents an arduino plugged in VIA USB. Each arduino requires a separate serial instance"""
     # serial_in2 = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
     thermocouple = None
+    accelerometer = None
     if (ENABLE_THERMOCOUPLE):
         log.write("DAQ: Testing Thermocouple\n")
         print("DAQ: Testing Thermocouple")
@@ -126,6 +146,14 @@ def main():
         test = thermocouple.getTemperature()
         log.write("DAQ: Thermocouple test Successful\n")
         print("DAQ: Thermocouple test Successful")
+    if (ENABLE_PIACCELEROMETER):
+        log.write("DAQ: Testing Accelerometer\n")
+        print("DAQ: Testing Accelerometer")
+        mercury_telemetry_pipeline.send_log("DAQ: Testing Accelerometer")
+        accelerometer = Accelerometer()
+        test = accelerometer.getAccel()
+        log.write("DAQ: Accelerometer test Successful\n")
+        print("DAQ: Accelerometer test Successful")
         mercury_telemetry_pipeline.send_log("DAQ: Thermocouple test Successful")
     if (ENABLE_GPS):
         print("DAQ: Testing GPS make sure the port is NOT busy")
@@ -139,7 +167,7 @@ def main():
     log.write("Initializing Formulas\n")
     print("Initializing Formulas")
     mercury_telemetry_pipeline.send_log("Initializing Formulas")
-    executor = ThreadPoolExecutor(max_workers=SERIAL_ARDUINO_COUNT + ENABLE_THERMOCOUPLE + ENABLE_GPS)
+    executor = ThreadPoolExecutor(max_workers=SERIAL_ARDUINO_COUNT + ENABLE_THERMOCOUPLE + ENABLE_PIACCELEROMETER +ENABLE_GPS)
     futures = []
     for serial_in in serial_inputs:
         args = [serial_in, formula_calc, mercury_telemetry_pipeline, log]
@@ -148,6 +176,9 @@ def main():
     if (ENABLE_THERMOCOUPLE):
         args = [thermocouple, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_temperatures, *args))
+    if (ENABLE_PIACCELEROMETER):
+        args = [accelerometer, formula_calc, mercury_telemetry_pipeline, log]
+        futures.append(executor.submit(collect_accelerations, *args))
     if ENABLE_GPS:
         gps_ser = serial.Serial(GPS.port, baudrate=115200, timeout=0.5, rtscts=True, dsrdtr=True)
         args = [gps_ser, formula_calc, mercury_telemetry_pipeline, log]
