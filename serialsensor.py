@@ -15,10 +15,10 @@ from thermocouple import Thermocouple
 from piaccelerometer import Accelerometer
 from datapoint import Datapoint
 import GPS
-SERIAL_ARDUINO_COUNT = 0  # hard coded value for now will determine how many arduinos there are
-ENABLE_PIACCELEROMETER = True
+SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
+ENABLE_PIACCELEROMETER = False
 ENABLE_THERMOCOUPLE = False
-ENABLE_GPS = True
+ENABLE_GPS = False
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -130,7 +130,7 @@ def main():
     log.write("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
     print("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     mercury_telemetry_pipeline.send_log("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
-    serial_inputs = [serial.Serial('/dev/ttyUSB' + str(i + 4), 9600, timeout=1) for i in range(SERIAL_ARDUINO_COUNT)]  # creates SERIAL_ARDUINO_COUNT serial inputs
+    serial_inputs = [serial.Serial('/dev/ttyUSB' + str(i + ENABLE_GPS * 4), 9600, timeout=1) for i in range(SERIAL_ARDUINO_COUNT)]  # creates SERIAL_ARDUINO_COUNT serial inputs
     log.write("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
     print("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     mercury_telemetry_pipeline.send_log("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")

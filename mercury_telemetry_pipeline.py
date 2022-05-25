@@ -4,7 +4,7 @@ import sensor_ids
 import requests
 from concurrent.futures import ThreadPoolExecutor
 
-ENABLE_TELEMETRY = False
+ENABLE_TELEMETRY = True
 LOCAL_URL = "http://localhost:8000/measurement/"
 REMOTE_URL = "http://nyu-baja-telemetry.herokuapp.com/measurement/"
 
@@ -12,6 +12,7 @@ SENSOR_ID_DICT = {   # maps the Basic daq software sensor id to that which the u
     sensor_ids.LOG : 5,
     sensor_ids.GPS : 3,
     sensor_ids.GPS_SPEED : 4,
+    sensor_ids.ELECTRONICS_THERMOCOUPLE : 6
 }
 
 class Pipeline:
