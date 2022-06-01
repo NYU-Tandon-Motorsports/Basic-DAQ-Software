@@ -15,16 +15,14 @@ data: [(int ID), (string Name), (int num_outputs), (list<string> comma_series_na
 
 ## Each method other than send_data will be
 
-ENABLE_7_SEG = False
+ENABLE_7_SEG = True
 display_left = tm1637.TM1637(clk = 17, dio = 4) if ENABLE_7_SEG else None
 display_right = tm1637.TM1637(clk = 16, dio = 21) if ENABLE_7_SEG else None
 
 def display_speed(speed):
-
     if ENABLE_7_SEG:
-        display_right.number(speed)
-    else:
-        print("I am going " + str(speed) + " mph!")
+        display_right.number(int(speed))
+    print("I am going " + str(speed) + " mph!")
 
 
 def display_steering(angle):

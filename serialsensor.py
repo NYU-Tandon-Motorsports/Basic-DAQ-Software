@@ -15,7 +15,7 @@ from thermocouple import Thermocouple
 from piaccelerometer import Accelerometer
 from datapoint import Datapoint
 import GPS
-SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
+SERIAL_ARDUINO_COUNT = 0  # hard coded value for now will determine how many arduinos there are
 ENABLE_PIACCELEROMETER = True
 ENABLE_THERMOCOUPLE = False
 ENABLE_GPS = True
@@ -71,6 +71,7 @@ def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, log):
         if result is not None: #if result is none then we ignore and read the next serial line
             if result == (-1,-1,-1,-1, -1, -1):
                 output = "ERROR: GPS has invalid fix. Please wait for it to recalibrate and make sure you are outside and your antenna is good"
+                mercury_telemetry_pipeline.send_log("No GPS Fix")
             else:
                 datapoints = datapoint.get_gps_datapoints(result)
                 for dp in datapoints:
