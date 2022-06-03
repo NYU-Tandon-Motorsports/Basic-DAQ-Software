@@ -22,7 +22,7 @@ ENABLE_GPS = True
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
-    while(not keyboard.is_pressed("shift+q")):  # Condition for when to stop the program currently 60 seconds
+    while(True):  # Condition for when to stop the program currently 60 seconds
         output = parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline)
         if output != "" and output is not None and ord(output[0]) != 0:
             log.write(bytes(output, 'utf-8').decode('utf-8', 'ignore') + "\n")
@@ -30,7 +30,7 @@ def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
 
 def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
-    while (not keyboard.is_pressed("shift+q")):  # Condition for when to stop the program currently 60 seconds
+    while (True):  # Condition for when to stop the program currently 60 seconds
         output = ""
         try:
             temperature = thermocouple.getTemperature()
@@ -47,7 +47,7 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
 
 def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
-    while (not keyboard.is_pressed("shift+q")):  # Condition for when to stop the program currently 60 seconds
+    while (True):  # Condition for when to stop the program currently 60 seconds
         output = ""
         try:
             acceleration = accelerometer.getAccel()
@@ -64,7 +64,7 @@ def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipelin
 
 def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
-    while (not keyboard.is_pressed("shift+q")):  # Condition for when to stop the program currently 60 seconds
+    while (True):  # Condition for when to stop the program currently 60 seconds
         output = ""
         raw = gps_port.readline().decode('utf-8')
         result = GPS.parseGPS(raw)
