@@ -3,7 +3,7 @@ import sensor_ids
 try:
     import tm1637
 except Exception as e:
-    print("You are not using a Raspberry PI. Please make sure ENABLE_THERMOCOUPLE is False.")
+    print("You are not using a Raspberry PI. Please make sure ENABLE_7_SEG is False.")
 #This module will be used to call methods which display stuff on the Driver HUD. We can also do some calculations in here such as deriving new quantities and displaying them.
 #One thing we must note is this is specifically for the offline stuff. If you are looking to fix data sent to the pits, see mercury-telemetry
 
@@ -15,7 +15,7 @@ data: [(int ID), (string Name), (int num_outputs), (list<string> comma_series_na
 
 ## Each method other than send_data will be
 
-ENABLE_7_SEG = True
+ENABLE_7_SEG = False
 display_left = tm1637.TM1637(clk = 17, dio = 4) if ENABLE_7_SEG else None
 display_right = tm1637.TM1637(clk = 16, dio = 21) if ENABLE_7_SEG else None
 
