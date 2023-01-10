@@ -13,7 +13,8 @@ SENSOR_ID_DICT = {   # maps the Basic daq software sensor id to that which the u
     sensor_ids.GPS : 3,
     sensor_ids.GPS_SPEED : 4,
     sensor_ids.ELECTRONICS_THERMOCOUPLE : 6,
-    sensor_ids.DOF9 : 7
+    sensor_ids.DOF9 : 7,
+    sensor_ids.STRING_POTENTIOMETER : 11
 }
 
 class Pipeline:

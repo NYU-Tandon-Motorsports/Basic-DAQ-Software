@@ -15,10 +15,10 @@ from thermocouple import Thermocouple
 from piaccelerometer import Accelerometer
 from datapoint import Datapoint
 import GPS
-SERIAL_ARDUINO_COUNT = 0  # hard coded value for now will determine how many arduinos there are
-ENABLE_PIACCELEROMETER = True
+SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
+ENABLE_PIACCELEROMETER = False
 ENABLE_THERMOCOUPLE = False
-ENABLE_GPS = True
+ENABLE_GPS = False
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
