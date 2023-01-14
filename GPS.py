@@ -58,4 +58,8 @@ def testGPS():
         print("ERROR: Serial port connection failed.")
         print(e)
 
-
+def set_candidates(candidates):
+    global portwrite
+    global port
+    portwrite = candidates[2].device
+    port = candidates[1].device

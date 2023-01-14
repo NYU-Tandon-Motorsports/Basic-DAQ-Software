@@ -3,6 +3,7 @@ import time
 import traceback
 import keyboard
 import serial
+from serial.tools import list_ports
 from datetime import datetime
 import driver_telemetry
 from mercury_telemetry_pipeline import Pipeline
@@ -127,11 +128,17 @@ def main():
     mercury_telemetry_pipeline = Pipeline()
     log = open(os.getcwd()+"/datalogs/serialdata_" + now.strftime("%m%d%Y_%H-%M-%S") + ".txt", "x")  # timestamping the text file and making a new log
     ## serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
-    log.write("Arduino data obtained from USB connection on " + now.strftime("%m/%d/%Y %H:%M:%S")+"\n\n")
-    log.write("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
-    print("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
-    mercury_telemetry_pipeline.send_log("DAQ: Initializing " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
-    serial_inputs = [serial.Serial('/dev/ttyUSB' + str(i + ENABLE_GPS * 4), 9600, timeout=1) for i in range(SERIAL_ARDUINO_COUNT)]  # creates SERIAL_ARDUINO_COUNT serial inputs
+    log.write("Serial data obtained from USB connection on " + now.strftime("%m/%d/%Y %H:%M:%S")+"\n\n")
+    gps_device_signature = '2c7c:0125'
+    arduino_device_signature = "1a86:7523"
+    gps_candidates = list(list_ports.grep(gps_device_signature))
+    gps_candidates.reverse()
+    arduino_candidates = list(list_ports.grep(arduino_device_signature))
+    arduino_candidates.reverse()
+    log.write("DAQ: Initializing " + str(len(arduino_candidates)) + " Arduino(s)\n")
+    print("DAQ: Initializing " + str(len(arduino_candidates)) + " Arduino(s)")
+    mercury_telemetry_pipeline.send_log("DAQ: Initializing " + str(len(arduino_candidates)) + " Arduino(s)")
+    serial_inputs = [serial.Serial(arduino_candidate.device, 9600, timeout=1) for arduino_candidate in arduino_candidates]  # creates SERIAL_ARDUINO_COUNT serial inputs
     log.write("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
     print("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
     mercury_telemetry_pipeline.send_log("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
@@ -160,6 +167,7 @@ def main():
         print("DAQ: Testing GPS make sure the port is NOT busy")
         log.write("DAQ: Testing GPS make sure the port is NOT busy\n")
         mercury_telemetry_pipeline.send_log("DAQ: Testing GPS make sure the port is NOT busy")
+        GPS.set_candidates(gps_candidates)
         GPS.testGPS()
         log.write("DAQ: GPS test Successful\n")
         print("DAQ: GPS test Successful")
