@@ -139,9 +139,9 @@ def main():
     print("DAQ: Initializing " + str(len(arduino_candidates)) + " Arduino(s)")
     mercury_telemetry_pipeline.send_log("DAQ: Initializing " + str(len(arduino_candidates)) + " Arduino(s)")
     serial_inputs = [serial.Serial(arduino_candidate.device, 9600, timeout=1) for arduino_candidate in arduino_candidates]  # creates SERIAL_ARDUINO_COUNT serial inputs
-    log.write("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)\n")
-    print("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
-    mercury_telemetry_pipeline.send_log("DAQ: Successfully Initialized " + str(SERIAL_ARDUINO_COUNT) + " Arduino(s)")
+    log.write("DAQ: Successfully Initialized " + str(len(arduino_candidates)) + " Arduino(s)\n")
+    print("DAQ: Successfully Initialized " + str(len(arduino_candidates)) + " Arduino(s)")
+    mercury_telemetry_pipeline.send_log("DAQ: Successfully Initialized " + str(len(arduino_candidates)) + " Arduino(s)")
     """Each serial in represents an arduino plugged in VIA USB. Each arduino requires a separate serial instance"""
     # serial_in2 = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
     thermocouple = None
@@ -176,7 +176,7 @@ def main():
     log.write("Initializing Formulas\n")
     print("Initializing Formulas")
     mercury_telemetry_pipeline.send_log("Initializing Formulas")
-    executor = ThreadPoolExecutor(max_workers=SERIAL_ARDUINO_COUNT + ENABLE_THERMOCOUPLE + ENABLE_PIACCELEROMETER +ENABLE_GPS)
+    executor = ThreadPoolExecutor(max_workers=len(arduino_candidates) + ENABLE_THERMOCOUPLE + ENABLE_PIACCELEROMETER +ENABLE_GPS)
     futures = []
     print("starting sensor read threads (press shift+q to quit)")
     for serial_in in serial_inputs:
