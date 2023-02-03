@@ -7,3 +7,4 @@ adafruit-circuitpython-l3gd20
 numpy
 raspberrypi-tm1637
 keyboard
+pygame

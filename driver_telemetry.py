@@ -1,15 +1,11 @@
 from datapoint import Datapoint
 import sensor_ids
-import plotly.graph_objects as go
+import pygame
+import threading
 
 ENABLE_DISPLAY = False
 
 
-fig = go.Figure(go.Indicator(
-    mode="gauge+number",
-    value=270,
-    domain={'x': [0, 1], 'y': [0, 1]},
-    title={'text': "Speed"}))
 
 
 if ENABLE_DISPLAY:
@@ -33,32 +29,46 @@ display_left = tm1637.TM1637(clk = 17, dio = 4) if ENABLE_7_SEG else None
 display_right = tm1637.TM1637(clk = 16, dio = 21) if ENABLE_7_SEG else None
 
 
+class Driver_Telemetry_Dashboard:
+    def __init__(self):
+        pygame.init()
 
-def init_dashboard():
-
-    fig.show()
-
-def display_speed(speed):
-    if ENABLE_7_SEG:
-        display_right.number(int(speed))
-    print("I am going " + str(speed) + " mph!")
-
-
-def display_steering(angle):
-    print("I am steering at a " + str(angle) + " degree angle!")
-    # TODO call method to display steering angle (if applicable)
+        size = width, height = 720, 480
+        black = 0, 0, 0
+        self.screen = pygame.display.set_mode(size)
+        self.screen.fill(black)
+        pygame.display.flip()
 
 
-def display_x_accel(accel):
-    fig.data[0].value = accel
 
 
-# TODO make functions for all of the quantities we want the driver to see during the race
+    def display_speed(self, speed):
+        if ENABLE_7_SEG:
+            display_right.number(int(speed))
+        print("I am going " + str(speed) + " mph!")
 
-def send_data(data : Datapoint):
-    if data.sense_id == sensor_ids.GPS_SPEED:
-        display_speed(data.outputs[0])
-    elif data.sense_id == sensor_ids.STEERING_ANGLE:
-        display_steering(data.outputs[0])
-    elif data.sense_id == sensor_ids.DOF9:
-        display_x_accel(data.outputs[0])
+
+    def display_steering(self, angle):
+        print("I am steering at a " + str(angle) + " degree angle!")
+        # TODO call method to display steering angle (if applicable)
+
+
+    def display_x_accel(self, accel):
+        myfont = pygame.font.SysFont("monospace", 15)
+        label = myfont.render(str(int(accel)), 1, (255, 255, 0))
+        self.screen.blit(label, (100,100))
+
+
+    # TODO make functions for all of the quantities we want the driver to see during the race
+
+    def send_data(self, data : Datapoint):
+        lock = threading.Lock()
+        if data.sense_id == sensor_ids.GPS_SPEED:
+            self.display_speed(data.outputs[0])
+        elif data.sense_id == sensor_ids.STEERING_ANGLE:
+            self.display_steering(data.outputs[0])
+        elif data.sense_id == sensor_ids.DOF9:
+            self.display_x_accel(data.outputs[0])
+        lock.acquire()
+        pygame.display.flip()
+        lock.release()
