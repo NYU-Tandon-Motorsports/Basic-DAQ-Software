@@ -1,7 +1,17 @@
 from datapoint import Datapoint
 import sensor_ids
+import plotly.graph_objects as go
 
 ENABLE_DISPLAY = False
+
+
+fig = go.Figure(go.Indicator(
+    mode="gauge+number",
+    value=270,
+    domain={'x': [0, 1], 'y': [0, 1]},
+    title={'text': "Speed"}))
+
+
 if ENABLE_DISPLAY:
     try:
         import tm1637
@@ -22,6 +32,12 @@ ENABLE_7_SEG = False
 display_left = tm1637.TM1637(clk = 17, dio = 4) if ENABLE_7_SEG else None
 display_right = tm1637.TM1637(clk = 16, dio = 21) if ENABLE_7_SEG else None
 
+
+
+def init_dashboard():
+
+    fig.show()
+
 def display_speed(speed):
     if ENABLE_7_SEG:
         display_right.number(int(speed))
@@ -33,6 +49,10 @@ def display_steering(angle):
     # TODO call method to display steering angle (if applicable)
 
 
+def display_x_accel(accel):
+    fig.data[0].value = accel
+
+
 # TODO make functions for all of the quantities we want the driver to see during the race
 
 def send_data(data : Datapoint):
@@ -40,4 +60,5 @@ def send_data(data : Datapoint):
         display_speed(data.outputs[0])
     elif data.sense_id == sensor_ids.STEERING_ANGLE:
         display_steering(data.outputs[0])
-
+    elif data.sense_id == sensor_ids.DOF9:
+        display_x_accel(data.outputs[0])
