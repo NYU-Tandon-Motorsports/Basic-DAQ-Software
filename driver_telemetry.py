@@ -1,7 +1,10 @@
 from datapoint import Datapoint
 import sensor_ids
 import pygame
+import time
 import threading
+from concurrent.futures import ThreadPoolExecutor
+
 
 ENABLE_DISPLAY = False
 
@@ -31,6 +34,9 @@ display_right = tm1637.TM1637(clk = 16, dio = 21) if ENABLE_7_SEG else None
 
 class Driver_Telemetry_Dashboard:
     def __init__(self):
+        self.executor = ThreadPoolExecutor(max_workers=100)
+        arg = [self]
+        self.executor.submit(self.flipper, *arg)
         pygame.init()
 
         size = width, height = 720, 480
@@ -62,6 +68,11 @@ class Driver_Telemetry_Dashboard:
     # TODO make functions for all of the quantities we want the driver to see during the race
 
     def send_data(self, data : Datapoint):
+        args = [self, data]
+        self.executor.submit(self.__send_data_threaded, *args)
+
+
+    def __send_data_threaded(self, data : Datapoint):
         lock = threading.Lock()
         if data.sense_id == sensor_ids.GPS_SPEED:
             self.display_speed(data.outputs[0])
@@ -70,5 +81,8 @@ class Driver_Telemetry_Dashboard:
         elif data.sense_id == sensor_ids.DOF9:
             self.display_x_accel(data.outputs[0])
         lock.acquire()
-        pygame.display.flip()
         lock.release()
+
+    def flipper(self):
+        pygame.display.flip()
+        time.sleep(0.5)
