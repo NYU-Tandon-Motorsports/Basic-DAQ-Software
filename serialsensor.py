@@ -5,7 +5,7 @@ import keyboard
 import serial
 from serial.tools import list_ports
 from datetime import datetime
-from driver_telemetry import Driver_Telemetry_Dashboard
+import driver_telemetry
 from mercury_telemetry_pipeline import Pipeline
 import datapoint
 from formulas import Formulas
@@ -21,15 +21,15 @@ ENABLE_PIACCELEROMETER = False
 ENABLE_THERMOCOUPLE = False
 ENABLE_GPS = False
 
-def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, driver_telem, log):
+def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
     while(True):  # Condition for when to stop the program currently 60 seconds
-        output = parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline, driver_telem)
+        output = parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline)
         if output != "" and output is not None and ord(output[0]) != 0:
             log.write(bytes(output, 'utf-8').decode('utf-8', 'ignore') + "\n")
     serial_in.close()
 
-def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline, driver_telem, log):
+def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
     while (True):  # Condition for when to stop the program currently 60 seconds
         output = ""
@@ -38,7 +38,7 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
             data = Datapoint(sensor_ids.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], ["C"], time.time() - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
-            driver_telem.send_data(data)
+            driver_telemetry.send_data(data)
             mercury_telemetry_pipeline.send_packet(data)
         except Exception as e:
             output = str(traceback.format_exc())
@@ -46,7 +46,7 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
         log.write(output + "\n")
         time.sleep(0.1)
 
-def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipeline, driver_telem, log):
+def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
     while (True):  # Condition for when to stop the program currently 60 seconds
         output = ""
@@ -55,7 +55,7 @@ def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipelin
             data = Datapoint(sensor_ids.DOF9, "Accelerometer", 3, ["x","y","z"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
-            driver_telem.send_data(data)
+            driver_telemetry.send_data(data)
             mercury_telemetry_pipeline.send_packet(data)
         except Exception as e:
             output = str(traceback.format_exc())
@@ -63,7 +63,7 @@ def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipelin
         log.write(output + "\n")
         time.sleep(0.1)
 
-def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, driver_telem, log):
+def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
     while (True):  # Condition for when to stop the program currently 60 seconds
         output = ""
@@ -78,7 +78,7 @@ def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, driver_telem
                 for dp in datapoints:
                     formula_calc.apply_calculation(dp)
                     output += "\n" + str(dp)
-                    driver_telem.send_data(dp)
+                    driver_telemetry.send_data(dp)
                     mercury_telemetry_pipeline.send_packet(dp)
             print(output)
             log.write(output + "\n")
@@ -86,7 +86,7 @@ def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, driver_telem
 
 
 
-def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline, driver_telem):
+def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline):
     raw = serial_in.readline()
     output = ""
     try:  # the try block is here because the serial stream can sometimes have extraneous bytes that cant be converted to plain text such as 00, 0A, etc.
@@ -114,7 +114,7 @@ def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline, driver_tel
                 formula_calc.apply_calculation(data)
                 output = str(data)
                 print(output)
-                driver_telem.send_data(data)
+                driver_telemetry.send_data(data)
                 mercury_telemetry_pipeline.send_packet(data)
         else:
             print(output)  # unmarked serial input
@@ -177,24 +177,24 @@ def main():
     print("Initializing Formulas")
     mercury_telemetry_pipeline.send_log("Initializing Formulas")
 
-    driver_telem = Driver_Telemetry_Dashboard()
+    driver_telemetry.init_driver_telem()
 
     executor = ThreadPoolExecutor(max_workers=len(arduino_candidates) + ENABLE_THERMOCOUPLE + ENABLE_PIACCELEROMETER +ENABLE_GPS)
     futures = []
     print("starting sensor read threads (press shift+q to quit)")
     for serial_in in serial_inputs:
-        args = [serial_in, formula_calc, mercury_telemetry_pipeline, driver_telem, log]
+        args = [serial_in, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_data, *args))
 
     if (ENABLE_THERMOCOUPLE):
-        args = [thermocouple, formula_calc, mercury_telemetry_pipeline, driver_telem, log]
+        args = [thermocouple, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_temperatures, *args))
     if (ENABLE_PIACCELEROMETER):
-        args = [accelerometer, formula_calc, mercury_telemetry_pipeline, driver_telem, log]
+        args = [accelerometer, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_accelerations, *args))
     if ENABLE_GPS:
         gps_ser = serial.Serial(GPS.port, baudrate=115200, timeout=0.5, rtscts=True, dsrdtr=True)
-        args = [gps_ser, formula_calc, mercury_telemetry_pipeline, driver_telem, log]
+        args = [gps_ser, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_gps, *args))
 
     concurrent.futures.wait(futures)

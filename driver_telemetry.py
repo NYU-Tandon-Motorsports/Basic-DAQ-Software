@@ -31,58 +31,38 @@ ENABLE_7_SEG = False
 display_left = tm1637.TM1637(clk = 17, dio = 4) if ENABLE_7_SEG else None
 display_right = tm1637.TM1637(clk = 16, dio = 21) if ENABLE_7_SEG else None
 
+executor = ThreadPoolExecutor(max_workers=1)
 
-class Driver_Telemetry_Dashboard:
-    def __init__(self):
-        self.executor = ThreadPoolExecutor(max_workers=100)
-        arg = [self]
-        self.executor.submit(self.flipper, *arg)
-        pygame.init()
 
-        size = width, height = 720, 480
-        black = 0, 0, 0
-        self.screen = pygame.display.set_mode(size)
-        self.screen.fill(black)
-        pygame.display.flip()
+#car states
+accel_state = 0
+
+def init_driver_telem():
+    print("Starting PyGame")
+    executor.submit(pygame_task)
 
 
 
 
-    def display_speed(self, speed):
-        if ENABLE_7_SEG:
-            display_right.number(int(speed))
-        print("I am going " + str(speed) + " mph!")
+
+def send_data(data : Datapoint):
+    if data.sense_id == sensor_ids.DOF9:
+        global accel_state
+        accel_state = data.outputs[0]
 
 
-    def display_steering(self, angle):
-        print("I am steering at a " + str(angle) + " degree angle!")
-        # TODO call method to display steering angle (if applicable)
 
-
-    def display_x_accel(self, accel):
+def pygame_task():
+    pygame.init()
+    size = width, height = 720, 480
+    black = 0, 0, 0
+    screen = pygame.display.set_mode(size)
+    pygame.display.flip()
+    time.sleep(0.5)
+    while(True):
         myfont = pygame.font.SysFont("monospace", 15)
-        label = myfont.render(str(int(accel)), 1, (255, 255, 0))
-        self.screen.blit(label, (100,100))
-
-
-    # TODO make functions for all of the quantities we want the driver to see during the race
-
-    def send_data(self, data : Datapoint):
-        args = [self, data]
-        self.executor.submit(self.__send_data_threaded, *args)
-
-
-    def __send_data_threaded(self, data : Datapoint):
-        lock = threading.Lock()
-        if data.sense_id == sensor_ids.GPS_SPEED:
-            self.display_speed(data.outputs[0])
-        elif data.sense_id == sensor_ids.STEERING_ANGLE:
-            self.display_steering(data.outputs[0])
-        elif data.sense_id == sensor_ids.DOF9:
-            self.display_x_accel(data.outputs[0])
-        lock.acquire()
-        lock.release()
-
-    def flipper(self):
+        label = myfont.render(str(int(accel_state)), 1, (255, 255, 0))
+        screen.fill(black)
+        screen.blit(label, (100, 100))
         pygame.display.flip()
         time.sleep(0.5)
