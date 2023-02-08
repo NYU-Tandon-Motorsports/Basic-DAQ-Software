@@ -130,7 +130,7 @@ def main():
     ## serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
     log.write("Serial data obtained from USB connection on " + now.strftime("%m/%d/%Y %H:%M:%S")+"\n\n")
     gps_device_signature = '2c7c:0125'
-    arduino_device_signature = "1a86:7523"
+    arduino_device_signature = '10c4:ea60'#"1a86:7523"
     gps_candidates = list(list_ports.grep(gps_device_signature))
     gps_candidates.reverse()
     arduino_candidates = list(list_ports.grep(arduino_device_signature))

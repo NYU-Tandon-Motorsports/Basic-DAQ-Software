@@ -36,6 +36,7 @@ executor = ThreadPoolExecutor(max_workers=1)
 
 #car states
 accel_state = 0
+angle_state = 0
 
 def init_driver_telem():
     print("Starting PyGame")
@@ -46,23 +47,23 @@ def init_driver_telem():
 
 
 def send_data(data : Datapoint):
-    if data.sense_id == sensor_ids.DOF9:
-        global accel_state
-        accel_state = data.outputs[0]
+    if data.sense_id == sensor_ids.STEERING_ANGLE:
+        global angle_state
+        angle_state = data.outputs[0]
 
 
 
 def pygame_task():
     pygame.init()
     size = width, height = 720, 480
-    black = 0, 0, 0
+    background = 227, 100, 138
     screen = pygame.display.set_mode(size)
     pygame.display.flip()
-    time.sleep(0.5)
+    time.sleep(0.016)
     while(True):
-        myfont = pygame.font.SysFont("monospace", 15)
-        label = myfont.render(str(int(accel_state)), 1, (255, 255, 0))
-        screen.fill(black)
+        myfont = pygame.font.SysFont("URW Gothic", 48)
+        label = myfont.render(str(int(angle_state)), 1, (255, 255, 255))
+        screen.fill(background)
         screen.blit(label, (100, 100))
         pygame.display.flip()
-        time.sleep(0.5)
+        time.sleep(0.016)
