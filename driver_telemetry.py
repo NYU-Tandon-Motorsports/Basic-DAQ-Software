@@ -2,12 +2,24 @@ from datapoint import Datapoint
 import sensor_ids
 import pygame
 import time
+from datetime import time
+from datetime import datetime
 import threading
 from concurrent.futures import ThreadPoolExecutor
-
+from math import pi, cos, sin
 
 ENABLE_DISPLAY = False
 
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+PINK = (255, 192, 203)
+
+THE_STRING = "MM" + ':' + "SS" + ':' + "MS"
+
+WIDTH, HEIGHT = 1400, 800
+center = (510, HEIGHT / 2)
+clock_radius = 300
 
 
 
@@ -37,6 +49,8 @@ executor = ThreadPoolExecutor(max_workers=1)
 #car states
 accel_state = 0
 angle_state = 0
+current_time = datetime.now()
+
 
 def init_driver_telem():
     print("Starting PyGame")
@@ -54,16 +68,111 @@ def send_data(data : Datapoint):
 
 
 def pygame_task():
+    # pygame stuff
+
     pygame.init()
-    size = width, height = 720, 480
-    background = 227, 100, 138
-    screen = pygame.display.set_mode(size)
-    pygame.display.flip()
-    time.sleep(0.016)
+    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    clock = pygame.time.Clock()
+    clock.tick(60)
+
+    pygame.display.set_caption("Dashboard")
+
     while(True):
-        myfont = pygame.font.SysFont("URW Gothic", 48)
-        label = myfont.render(str(int(angle_state)), 1, (255, 255, 255))
-        screen.fill(background)
-        screen.blit(label, (100, 100))
+
+        screen.fill(PINK)
+
+        # SPEEDOMETER
+        write_text(screen,"Speedometer", 40, (WIDTH / 4, (HEIGHT / 2) - (clock_radius / 2) - 75))
+
+        # clock outline
+        pygame.draw.circle(screen, WHITE, (WIDTH / 4, (HEIGHT / 2) + 100), clock_radius - 10, 10)
+        # clock numbers
+        clock_nums(screen, 0, 8, 5, 75, (clock_radius - 90), 38.57143, 223.2, (WIDTH / 4), (HEIGHT / 2) + 100)
+        # ticks
+        ticks(screen, 0, 36, (clock_radius - 15), 7.714286, 223.2, WIDTH / 4, (HEIGHT / 2) + 100)
+        #speed = myfont.render(str(int(MPH_state )), 1, (255, 255, 255))
+        #
+        #
+        #
+        speed = angle_state
+        #speed=5
+        #
+        #
+        #
+        if (speed < 0):
+            speed = 0
+        if (speed > 35):
+            speed = 35
+        theta = (speed * (270 / 35.0)) + 223.2
+        pygame.draw.line(screen, BLACK, ((WIDTH / 2) / 2, HEIGHT / 2 + 100),
+                         polar_to_cartesian(240, theta, WIDTH / 4, (HEIGHT / 2) + 100), 4)
+
+        # RPM
+        write_text(screen,"RPM Gauge", 40, ((WIDTH / 4) * 3, (HEIGHT / 2) - (clock_radius / 2) - 75))
+        # gauge outline
+        pygame.draw.circle(screen, WHITE, ((WIDTH / 4) * 3, (HEIGHT / 2) + 100), clock_radius - 10, 10)
+        circle_to_arc = 75
+        # danger arc
+        pygame.draw.arc(screen, BLACK, (800, (((HEIGHT - (clock_radius * 2)) / 2) + (circle_to_arc / 2) + 100),
+                                        ((clock_radius * 2) - circle_to_arc), ((clock_radius * 2) - circle_to_arc)),
+                        5.5, 6.58, 5)
+        # clock numbers
+        clock_nums(screen,1, 11, 1, 80, (clock_radius - 80), 30, 193.2, (WIDTH / 4) * 3, (HEIGHT / 2) + 100)
+        # ticks
+        ticks(screen,0, 91, (clock_radius - 15), 3, 223.2, (WIDTH / 4) * 3, (HEIGHT / 2) + 100)
+        # rpm = myfont.render(str(int(RPM_state)), 1, (255, 255, 255))
+        rpm = 1
+        theta = (rpm * (270 / 9)) + 193.2
+        pygame.draw.line(screen, BLACK, (((WIDTH / 4) * 3), (HEIGHT / 2) + 100),
+                         polar_to_cartesian(240, theta, (WIDTH / 4) * 3, (HEIGHT / 2) + 100), 4)
+
+        # TIMER
+        # timer outline
+        pygame.draw.rect(screen, WHITE, [(WIDTH / 2) - (WIDTH / 7), HEIGHT / 35, WIDTH / (3.5), HEIGHT / 6], 5)
+        start = pygame.time.get_ticks()
+        render_time(screen, start, 80)
+
         pygame.display.flip()
-        time.sleep(0.016)
+
+
+
+# pygame stuff
+def write_text(screen, text, size, position):
+    font = pygame.font.SysFont("Arial", size, True, False)
+    text = font.render(text, True, WHITE)
+    text_rect = text.get_rect(center=(position))
+    screen.blit(text, text_rect)
+
+
+def render_time(screen, start, size):
+    hundredth_of_a_second = int(str(start)[-2:])  # hundredth of a second
+    time_in_ms = time((start // 1000) // 3600, ((start // 1000) // 60 % 60), (start // 1000) % 60)
+    time_string = "{}{}{:02d}".format(time_in_ms.strftime("%M:%S"), ':', hundredth_of_a_second)
+    write_text(screen, time_string, size, (WIDTH / 2, HEIGHT / 8))
+
+
+# theta is in degrees
+def polar_to_cartesian(r, theta, width_center, height_center):
+    x = r * sin(pi * theta / 180)
+    y = r * cos(pi * theta / 180)
+    return x + width_center, -(y - height_center)
+
+
+def clock_nums(screen, rg_strt, rg_end, mult, size, r, angle, strt_angle, width_center, height_center):
+    for number in range(rg_strt, rg_end):
+        write_text(screen, str(number * mult), size,
+                   polar_to_cartesian(r, (number * angle + strt_angle), width_center, height_center))
+
+
+def ticks(screen, rg_strt, rg_end, r, angle, strt_angle, width_center, height_center):
+    for number in range(rg_strt, rg_end):
+        tick_start = polar_to_cartesian(r, (number * angle + strt_angle), width_center, height_center)
+        if number % 10 == 0:
+            tick_end = polar_to_cartesian(r - 25, (number * angle + strt_angle), width_center, height_center)
+            pygame.draw.line(screen, WHITE, tick_start, tick_end, 2)
+        elif number % 5 == 0:
+            tick_end = polar_to_cartesian(r - 20, (number * angle + strt_angle), width_center, height_center)
+            pygame.draw.line(screen, WHITE, tick_start, tick_end, 2)
+        else:
+            tick_end = polar_to_cartesian(r - 15, (number * angle + strt_angle), width_center, height_center)
+            pygame.draw.line(screen, WHITE, tick_start, tick_end, 2)

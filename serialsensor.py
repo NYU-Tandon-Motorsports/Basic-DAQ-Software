@@ -52,7 +52,7 @@ def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipelin
         output = ""
         try:
             acceleration = accelerometer.getAccel()
-            data = Datapoint(sensor_ids.DOF9, "Accelerometer", 3, ["x","y","z"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
+            data = Datapoint(sensor_ids.PIACCELEROMETER, "Accelerometer", 3, ["x","y","z"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
@@ -130,7 +130,7 @@ def main():
     ## serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
     log.write("Serial data obtained from USB connection on " + now.strftime("%m/%d/%Y %H:%M:%S")+"\n\n")
     gps_device_signature = '2c7c:0125'
-    arduino_device_signature = '10c4:ea60'#"1a86:7523"
+    arduino_device_signature = '0403:6015'#"1a86:7523"#'0403:6015'#10c4:ea60'#
     gps_candidates = list(list_ports.grep(gps_device_signature))
     gps_candidates.reverse()
     arduino_candidates = list(list_ports.grep(arduino_device_signature))

@@ -41,7 +41,7 @@ Adafruit_BNO055 bno = Adafruit_BNO055(-1, 0x28);
 /**************************************************************************/
 void setup(void)
 {
-  Serial.begin(9600);
+  Serial.begin(57600);
   Serial.println("###Orientation Sensor Raw Data Test"); Serial.println("");
 
   /* Initialise the sensor */
@@ -92,21 +92,22 @@ void loop(void)
   // - VECTOR_LINEARACCEL   - m/s^2
   // - VECTOR_GRAVITY       - m/s^2
   imu::Vector<3> euler = bno.getVector(Adafruit_BNO055::VECTOR_LINEARACCEL);
-  myFile=SD.open("test.txt",FILE_WRITE);
-  myFile.seek(EOF);
+  //myFile=SD.open("test.txt",FILE_WRITE);
+  //myFile.seek(EOF);
   // Display the floating point data
   Serial.print("$$$0 ");
   Serial.print("DOF9 ");
   Serial.print("3 ");
   Serial.print("x,y,z ");
-  Serial.print(euler.x());
+  Serial.print(euler.x(), 3);
   Serial.print(",");
-  Serial.print(euler.y());
+  Serial.print(euler.y(), 3);
   Serial.print(",");
-  Serial.print(euler.z());
+  Serial.print(euler.z(), 3);
   Serial.print(" ");
   Serial.print("m/s2,m/s2,m/s2 ");
-  Serial.println(millis()/1000.0);
+  Serial.println(millis()/1000.0, 3);
+  delay(50);
   /*
   // Quaternion data
   imu::Quaternion quat = bno.getQuat();
@@ -133,7 +134,7 @@ void loop(void)
   Serial.print(" Mag=");
   Serial.println(mag, DEC);
 */
-  float time=millis()/1000;
+  /*float time=millis()/1000;
   if (myFile){
     myFile.print(time);
     myFile.print("\t");
@@ -145,8 +146,7 @@ void loop(void)
     myFile.print(euler.z());
     myFile.print("\n");
     myFile.close();
-  }
-  delay(BNO055_SAMPLERATE_DELAY_MS);
+  */
 
 
 }
