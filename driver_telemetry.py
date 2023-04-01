@@ -17,7 +17,7 @@ PINK = (255, 192, 203)
 
 THE_STRING = "MM" + ':' + "SS" + ':' + "MS"
 
-WIDTH, HEIGHT = 1400, 800
+WIDTH, HEIGHT = 800, 480
 center = (510, HEIGHT / 2)
 clock_radius = 300
 
@@ -73,20 +73,24 @@ def pygame_task():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
-    clock.tick(60)
+
 
     pygame.display.set_caption("Dashboard")
 
     while(True):
-
+        print("hello0")
         screen.fill(PINK)
+        print("hello1")
 
         # SPEEDOMETER
         write_text(screen,"Speedometer", 40, (WIDTH / 4, (HEIGHT / 2) - (clock_radius / 2) - 75))
+        print("hello1.1")
 
         # clock outline
-        pygame.draw.circle(screen, WHITE, (WIDTH / 4, (HEIGHT / 2) + 100), clock_radius - 10, 10)
+        #pygame.draw.circle(screen, WHITE, (WIDTH / 4, (HEIGHT / 2) + 100), clock_radius - 10, 10)
         # clock numbers
+        print("hello1.2")
+
         clock_nums(screen, 0, 8, 5, 75, (clock_radius - 90), 38.57143, 223.2, (WIDTH / 4), (HEIGHT / 2) + 100)
         # ticks
         ticks(screen, 0, 36, (clock_radius - 15), 7.714286, 223.2, WIDTH / 4, (HEIGHT / 2) + 100)
@@ -95,6 +99,8 @@ def pygame_task():
         #
         #
         speed = angle_state
+        print("hello1.5")
+
         #speed=5
         #
         #
@@ -104,13 +110,14 @@ def pygame_task():
         if (speed > 35):
             speed = 35
         theta = (speed * (270 / 35.0)) + 223.2
+
         pygame.draw.line(screen, BLACK, ((WIDTH / 2) / 2, HEIGHT / 2 + 100),
                          polar_to_cartesian(240, theta, WIDTH / 4, (HEIGHT / 2) + 100), 4)
 
         # RPM
         write_text(screen,"RPM Gauge", 40, ((WIDTH / 4) * 3, (HEIGHT / 2) - (clock_radius / 2) - 75))
         # gauge outline
-        pygame.draw.circle(screen, WHITE, ((WIDTH / 4) * 3, (HEIGHT / 2) + 100), clock_radius - 10, 10)
+        #pygame.draw.circle(screen, WHITE, ((WIDTH / 4) * 3, (HEIGHT / 2) + 100), clock_radius - 10, 10)
         circle_to_arc = 75
         # danger arc
         pygame.draw.arc(screen, BLACK, (800, (((HEIGHT - (clock_radius * 2)) / 2) + (circle_to_arc / 2) + 100),
@@ -131,9 +138,11 @@ def pygame_task():
         pygame.draw.rect(screen, WHITE, [(WIDTH / 2) - (WIDTH / 7), HEIGHT / 35, WIDTH / (3.5), HEIGHT / 6], 5)
         start = pygame.time.get_ticks()
         render_time(screen, start, 80)
+        
+        print("hello2")
 
         pygame.display.flip()
-
+        clock.tick(60)
 
 
 # pygame stuff
