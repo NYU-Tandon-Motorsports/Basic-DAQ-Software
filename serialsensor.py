@@ -14,12 +14,14 @@ from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 from thermocouple import Thermocouple
 from piaccelerometer import Accelerometer
+from fast_sus_ADC import SusADC
 from datapoint import Datapoint
 import GPS
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 ENABLE_PIACCELEROMETER = False
 ENABLE_THERMOCOUPLE = False
 ENABLE_GPS = False
+ENABLE_ADC = True
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -52,7 +54,7 @@ def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipelin
         output = ""
         try:
             acceleration = accelerometer.getAccel()
-            data = Datapoint(sensor_ids.DOF9, "Accelerometer", 3, ["x","y","z"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
+            data = Datapoint(sensor_ids.PIACCELEROMETER, "Accelerometer", 3, ["x","y","z"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
@@ -62,6 +64,23 @@ def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipelin
         print(output)
         log.write(output + "\n")
         time.sleep(0.1)
+
+def collect_sus_angles(adc, formula_calc, mercury_telemetry_pipeline, log):
+    start_time = time.time()
+    while (True):  # Condition for when to stop the program currently 60 seconds
+        output = ""
+        try:
+            angle = adc.getVals()
+            data = Datapoint(sensor_ids.SUS_ADC, "Sus-Angles", 3, ["FL","FR","RL", "RR"], [0,angle,0,0], ["deg","deg","deg","deg"], time.time() - start_time)
+            formula_calc.apply_calculation(data)
+            output = str(data)
+            driver_telemetry.send_data(data)
+            mercury_telemetry_pipeline.send_packet(data)
+        except Exception as e:
+            output = str(traceback.format_exc())
+        print(output)
+        log.write(output + "\n")
+        time.sleep(0.001)
 
 def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -130,7 +149,7 @@ def main():
     ## serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
     log.write("Serial data obtained from USB connection on " + now.strftime("%m/%d/%Y %H:%M:%S")+"\n\n")
     gps_device_signature = '2c7c:0125'
-    arduino_device_signature = '10c4:ea60'#"1a86:7523"
+    arduino_device_signature = '0403:6015'#"1a86:7523"#'0403:6015'#10c4:ea60'#
     gps_candidates = list(list_ports.grep(gps_device_signature))
     gps_candidates.reverse()
     arduino_candidates = list(list_ports.grep(arduino_device_signature))
@@ -163,6 +182,15 @@ def main():
         log.write("DAQ: Accelerometer test Successful\n")
         print("DAQ: Accelerometer test Successful")
         mercury_telemetry_pipeline.send_log("DAQ: Thermocouple test Successful")
+    if (ENABLE_ADC):
+        log.write("DAQ: Testing ADC\n")
+        print("DAQ: Testing ADC")
+        mercury_telemetry_pipeline.send_log("DAQ: Testing ADC")
+        adc = SusADC()
+        test = adc.getVals()
+        log.write("DAQ: ADC test Successful\n")
+        print("DAQ: ADC test Successful")
+        mercury_telemetry_pipeline.send_log("DAQ: ADC test Successful")
     if (ENABLE_GPS):
         print("DAQ: Testing GPS make sure the port is NOT busy")
         log.write("DAQ: Testing GPS make sure the port is NOT busy\n")
@@ -177,9 +205,9 @@ def main():
     print("Initializing Formulas")
     mercury_telemetry_pipeline.send_log("Initializing Formulas")
 
-    driver_telemetry.init_driver_telem()
+    #driver_telemetry.init_driver_telem()
 
-    executor = ThreadPoolExecutor(max_workers=len(arduino_candidates) + ENABLE_THERMOCOUPLE + ENABLE_PIACCELEROMETER +ENABLE_GPS)
+    executor = ThreadPoolExecutor(max_workers=len(arduino_candidates) + ENABLE_THERMOCOUPLE + ENABLE_PIACCELEROMETER +ENABLE_GPS + ENABLE_ADC)
     futures = []
     print("starting sensor read threads (press shift+q to quit)")
     for serial_in in serial_inputs:
@@ -192,6 +220,9 @@ def main():
     if (ENABLE_PIACCELEROMETER):
         args = [accelerometer, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_accelerations, *args))
+    if (ENABLE_ADC):
+        args = [adc, formula_calc, mercury_telemetry_pipeline, log]
+        futures.append(executor.submit(collect_sus_angles, *args))
     if ENABLE_GPS:
         gps_ser = serial.Serial(GPS.port, baudrate=115200, timeout=0.5, rtscts=True, dsrdtr=True)
         args = [gps_ser, formula_calc, mercury_telemetry_pipeline, log]

@@ -66,7 +66,6 @@ def pygame_task():
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT))
     clock = pygame.time.Clock()
-
     pygame.display.set_caption("Dashboard")
 
     while (True):
@@ -92,8 +91,7 @@ def pygame_task():
         #
         speed = angle_state
         print("hello1.5")
-
-        # speed=5
+        #speed=5
         #
         #
         #
@@ -102,7 +100,6 @@ def pygame_task():
         if (speed > 35):
             speed = 35
         theta = (speed * (270 / 35.0)) + 223.2
-
         pygame.draw.line(screen, BLACK, ((WIDTH / 2) / 2, HEIGHT / 2 + 45),
                          polar_to_cartesian(140, theta, WIDTH / 4, (HEIGHT / 2) + 45), 4)
 
@@ -130,9 +127,7 @@ def pygame_task():
         pygame.draw.rect(screen, WHITE, [(WIDTH / 2) - (WIDTH / 7), HEIGHT / 40 - 10, WIDTH / (3.5), HEIGHT / 7], 5)
         start = pygame.time.get_ticks()
         render_time(screen, start, 50)
-
         print("hello2")
-
         pygame.display.flip()
         clock.tick(60)
 
@@ -150,6 +145,7 @@ def render_time(screen, start, size):
     time_in_ms = time((start // 1000) // 3600, ((start // 1000) // 60 % 60), (start // 1000) % 60)
     time_string = "{}{}{:02d}".format(time_in_ms.strftime("%M:%S"), ':', hundredth_of_a_second)
     write_text(screen, time_string, size, (WIDTH / 2, HEIGHT / 13))
+
 
 
 # theta is in degrees
@@ -177,3 +173,4 @@ def ticks(screen, rg_strt, rg_end, r, angle, strt_angle, width_center, height_ce
         else:
             tick_end = polar_to_cartesian(r - 15, (number * angle + strt_angle), width_center, height_center)
             pygame.draw.line(screen, WHITE, tick_start, tick_end, 2)
+
