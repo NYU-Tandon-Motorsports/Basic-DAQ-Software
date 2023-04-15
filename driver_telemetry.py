@@ -64,7 +64,9 @@ def pygame_task():
     # pygame stuff
 
     pygame.init()
-    screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    #screen = pygame.display.set_mode((WIDTH, HEIGHT))
+    screen = pygame.display.set_mode((0,0), pygame.FULLSCREEN)
+
     clock = pygame.time.Clock()
     pygame.display.set_caption("Dashboard")
 
@@ -78,7 +80,7 @@ def pygame_task():
         print("hello1.1")
 
         # clock outline
-        pygame.draw.circle(screen, WHITE, (WIDTH / 4, (HEIGHT / 2) + 45), clock_radius - 10, 10)
+        #pygame.draw.circle(screen, WHITE, (WIDTH / 4, (HEIGHT / 2) + 45), clock_radius - 10, 10)
         # clock numbers
         print("hello1.2")
 
@@ -106,7 +108,7 @@ def pygame_task():
         # RPM
         write_text(screen, "RPM Gauge", 30, ((WIDTH / 4) * 3, (HEIGHT / 2) - (clock_radius / 2) - 60))
         # gauge outline
-        pygame.draw.circle(screen, WHITE, ((WIDTH / 4) * 3, (HEIGHT / 2) + 45), clock_radius - 10, 10)
+        #pygame.draw.circle(screen, WHITE, ((WIDTH / 4) * 3, (HEIGHT / 2) + 45), clock_radius - 10, 10)
         circle_to_arc = 75
         # danger arc
         pygame.draw.arc(screen, BLACK, (800, (((HEIGHT - (clock_radius * 2)) / 2) + (circle_to_arc / 2) + 100),
