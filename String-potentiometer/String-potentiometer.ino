@@ -8,7 +8,7 @@ void loop() {
     
     int voltage = analogRead(A3);
     //(max_distance/max_analogRead) * (analogRead - minAnalogRead)
-    double distance = (66.75/1006)*(voltage - 8.0);
+    double distance = (35.0/1006)*(voltage - 8.0); //66.75
     Serial.print("$$$18 StringPot 1 stringdistance ");
     Serial.print(distance);
     Serial.print(" cm ");

@@ -19,7 +19,7 @@ THE_STRING = "MM" + ':' + "SS" + ':' + "MS"
 
 WIDTH, HEIGHT = 800, 480
 center = (510, HEIGHT / 2)
-clock_radius = 300
+clock_radius = 200
 
 if ENABLE_DISPLAY:
     try:
@@ -55,7 +55,7 @@ def init_driver_telem():
 
 
 def send_data(data: Datapoint):
-    if data.sense_id == sensor_ids.STEERING_ANGLE:
+    if data.sense_id == sensor_ids.STRING_POTENTIOMETER:
         global angle_state
         angle_state = data.outputs[0]
 
@@ -90,7 +90,7 @@ def pygame_task():
         #
         #
         speed = angle_state
-        print("hello1.5")
+        print(speed)
         #speed=5
         #
         #

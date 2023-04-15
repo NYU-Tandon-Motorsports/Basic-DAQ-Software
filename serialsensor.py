@@ -21,7 +21,7 @@ SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many ard
 ENABLE_PIACCELEROMETER = False
 ENABLE_THERMOCOUPLE = False
 ENABLE_GPS = False
-ENABLE_ADC = True
+ENABLE_ADC = False
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -149,7 +149,7 @@ def main():
     ## serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
     log.write("Serial data obtained from USB connection on " + now.strftime("%m/%d/%Y %H:%M:%S")+"\n\n")
     gps_device_signature = '2c7c:0125'
-    arduino_device_signature = '0403:6015'#"1a86:7523"#'0403:6015'#10c4:ea60'#
+    arduino_device_signature = "1a86:7523"#'0403:6015'#'0403:6015'#10c4:ea60'#
     gps_candidates = list(list_ports.grep(gps_device_signature))
     gps_candidates.reverse()
     arduino_candidates = list(list_ports.grep(arduino_device_signature))
@@ -205,7 +205,7 @@ def main():
     print("Initializing Formulas")
     mercury_telemetry_pipeline.send_log("Initializing Formulas")
 
-    #driver_telemetry.init_driver_telem()
+    driver_telemetry.init_driver_telem()
 
     executor = ThreadPoolExecutor(max_workers=len(arduino_candidates) + ENABLE_THERMOCOUPLE + ENABLE_PIACCELEROMETER +ENABLE_GPS + ENABLE_ADC)
     futures = []
