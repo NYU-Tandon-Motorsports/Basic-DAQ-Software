@@ -13,7 +13,7 @@ ENABLE_DISPLAY = False
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
-PINK = (255, 192, 203)
+PINK = (227, 0, 166)
 
 THE_STRING = "MM" + ':' + "SS" + ':' + "MS"
 
@@ -72,7 +72,7 @@ def pygame_task():
 
     while (True):
         print("hello0")
-        screen.fill(PINK)
+        screen.fill(BLACK)
         print("hello1")
 
         # SPEEDOMETER
@@ -102,7 +102,7 @@ def pygame_task():
         if (speed > 35):
             speed = 35
         theta = (speed * (270 / 35.0)) + 223.2
-        pygame.draw.line(screen, BLACK, ((WIDTH / 2) / 2, HEIGHT / 2 + 45),
+        pygame.draw.line(screen, PINK, ((WIDTH / 2) / 2, HEIGHT / 2 + 45),
                          polar_to_cartesian(140, theta, WIDTH / 4, (HEIGHT / 2) + 45), 4)
 
         # RPM
@@ -111,7 +111,7 @@ def pygame_task():
         #pygame.draw.circle(screen, WHITE, ((WIDTH / 4) * 3, (HEIGHT / 2) + 45), clock_radius - 10, 10)
         circle_to_arc = 75
         # danger arc
-        pygame.draw.arc(screen, BLACK, (800, (((HEIGHT - (clock_radius * 2)) / 2) + (circle_to_arc / 2) + 100),
+        pygame.draw.arc(screen, PINK, (800, (((HEIGHT - (clock_radius * 2)) / 2) + (circle_to_arc / 2) + 100),
                                         ((clock_radius * 2) - circle_to_arc), ((clock_radius * 2) - circle_to_arc)),
                         5.5, 6.58, 5)
         # clock numbers
@@ -121,12 +121,12 @@ def pygame_task():
         # rpm = myfont.render(str(int(RPM_state)), 1, (255, 255, 255))
         rpm = 1
         theta = (rpm * (270 / 9)) + 193.2
-        pygame.draw.line(screen, BLACK, (((WIDTH / 4) * 3), (HEIGHT / 2) + 45),
+        pygame.draw.line(screen, PINK, (((WIDTH / 4) * 3), (HEIGHT / 2) + 45),
                          polar_to_cartesian(140, theta, (WIDTH / 4) * 3, (HEIGHT / 2) + 45), 4)
 
         # TIMER
         # timer outline
-        pygame.draw.rect(screen, WHITE, [(WIDTH / 2) - (WIDTH / 7), HEIGHT / 40 - 10, WIDTH / (3.5), HEIGHT / 7], 5)
+        pygame.draw.rect(screen, PINK, [(WIDTH / 2) - (WIDTH / 7), HEIGHT / 40 - 10, WIDTH / (3.5), HEIGHT / 7], 5)
         start = pygame.time.get_ticks()
         render_time(screen, start, 50)
         print("hello2")
@@ -168,11 +168,11 @@ def ticks(screen, rg_strt, rg_end, r, angle, strt_angle, width_center, height_ce
         tick_start = polar_to_cartesian(r, (number * angle + strt_angle), width_center, height_center)
         if number % 10 == 0:
             tick_end = polar_to_cartesian(r - 25, (number * angle + strt_angle), width_center, height_center)
-            pygame.draw.line(screen, WHITE, tick_start, tick_end, 2)
+            pygame.draw.line(screen, PINK, tick_start, tick_end, 2)
         elif number % 5 == 0:
             tick_end = polar_to_cartesian(r - 20, (number * angle + strt_angle), width_center, height_center)
-            pygame.draw.line(screen, WHITE, tick_start, tick_end, 2)
+            pygame.draw.line(screen, PINK, tick_start, tick_end, 2)
         else:
             tick_end = polar_to_cartesian(r - 15, (number * angle + strt_angle), width_center, height_center)
-            pygame.draw.line(screen, WHITE, tick_start, tick_end, 2)
+            pygame.draw.line(screen, PINK, tick_start, tick_end, 2)
 
