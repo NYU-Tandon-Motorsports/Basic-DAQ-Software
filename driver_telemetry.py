@@ -71,18 +71,18 @@ def pygame_task():
     pygame.display.set_caption("Dashboard")
 
     while (True):
-        print("hello0")
+        #print("hello0")
         screen.fill(BLACK)
-        print("hello1")
+        #print("hello1")
 
         # SPEEDOMETER
         write_text(screen, "Speedometer", 30, (WIDTH / 4, (HEIGHT / 2) - (clock_radius / 2) - 60))
-        print("hello1.1")
+        #print("hello1.1")
 
         # clock outline
         #pygame.draw.circle(screen, WHITE, (WIDTH / 4, (HEIGHT / 2) + 45), clock_radius - 10, 10)
         # clock numbers
-        print("hello1.2")
+        #print("hello1.2")
 
         clock_nums(screen, 0, 8, 5, 40, (clock_radius - 65), 38.57143, 223.2, (WIDTH / 4), (HEIGHT / 2) + 45)
         # ticks
@@ -92,7 +92,7 @@ def pygame_task():
         #
         #
         speed = angle_state
-        print(speed)
+        #print(speed)
         #speed=5
         #
         #
@@ -129,7 +129,7 @@ def pygame_task():
         pygame.draw.rect(screen, PINK, [(WIDTH / 2) - (WIDTH / 7), HEIGHT / 40 - 10, WIDTH / (3.5), HEIGHT / 7], 5)
         start = pygame.time.get_ticks()
         render_time(screen, start, 50)
-        print("hello2")
+        #print("hello2")
         pygame.display.flip()
         clock.tick(60)
 
