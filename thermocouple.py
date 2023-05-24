@@ -1,7 +1,7 @@
 try:
     import board
     import digitalio
-    import adafruit_mcp9808
+    import adafruit_pct2075
     import busio
 except Exception as e:
     print("You are not using a Raspberry PI. Please make sure ENABLE_THERMOCOUPLE is False.")
@@ -10,7 +10,8 @@ except Exception as e:
 class Thermocouple:
     def __init__(self):
         i2c = board.I2C()
-        self.mcp = adafruit_mcp9808.MCP9808(i2c)
+        self.pct = adafruit_pct2075.PCT2075(i2c)
+
 
     def getTemperature(self):
-        return self.mcp.temperature
+        return self.pct.temperature
