@@ -18,7 +18,7 @@ from fast_sus_ADC import SusADC
 from datapoint import Datapoint
 import GPS
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
-ENABLE_PIACCELEROMETER = False
+ENABLE_PIACCELEROMETER = True
 ENABLE_THERMOCOUPLE = False
 ENABLE_GPS = False
 ENABLE_ADC = False
