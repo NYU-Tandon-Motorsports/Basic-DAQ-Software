@@ -4,7 +4,7 @@ import sensor_ids
 import requests
 from concurrent.futures import ThreadPoolExecutor
 
-ENABLE_TELEMETRY = True
+ENABLE_TELEMETRY = False
 LOCAL_URL = "http://localhost:8000/measurement/"
 REMOTE_URL = "http://telemetry-nyubaja.herokuapp.com/measurement/"
 

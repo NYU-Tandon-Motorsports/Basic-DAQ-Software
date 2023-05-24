@@ -5,6 +5,7 @@ adafruit-circuitpython-max31855
 adafruit-circuitpython-lis3dh
 adafruit-circuitpython-l3gd20
 adafruit-circuitpython-ads1x15
+adafruit-circuitpython-mcp9808
 numpy
 raspberrypi-tm1637
 keyboard
