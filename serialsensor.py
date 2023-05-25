@@ -14,14 +14,16 @@ from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 from thermocouple import Thermocouple
 from piaccelerometer import Accelerometer
+from pigyro import Gyro
 from fast_sus_ADC import SusADC
 from datapoint import Datapoint
 import GPS
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 ENABLE_PIACCELEROMETER = False
-ENABLE_THERMOCOUPLE = True
+ENABLE_THERMOCOUPLE = False
 ENABLE_GPS = False
 ENABLE_ADC = False
+ENABLE_GYRO = True
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -46,7 +48,7 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
             output = str(traceback.format_exc())
         print(output)
         log.write(output + "\n")
-        time.sleep(0.1)
+        time.sleep(1)
 
 def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -55,6 +57,23 @@ def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipelin
         try:
             acceleration = accelerometer.getAccel()
             data = Datapoint(sensor_ids.PIACCELEROMETER, "Accelerometer", 3, ["x","y","z"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
+            formula_calc.apply_calculation(data)
+            output = str(data)
+            driver_telemetry.send_data(data)
+            mercury_telemetry_pipeline.send_packet(data)
+        except Exception as e:
+            output = str(traceback.format_exc())
+        print(output)
+        log.write(output + "\n")
+        time.sleep(0.1)
+
+def collect_gyro(gyro, formula_calc, mercury_telemetry_pipeline, log):
+    start_time = time.time()
+    while (True):  # Condition for when to stop the program currently 60 seconds
+        output = ""
+        try:
+            acceleration = gyro.getAccel()
+            data = Datapoint(sensor_ids.GYRO, "Gyro", 3, ["yaw","pitch","roll"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
@@ -165,6 +184,7 @@ def main():
     # serial_in2 = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
     thermocouple = None
     accelerometer = None
+    gyro = None
     if (ENABLE_THERMOCOUPLE):
         log.write("DAQ: Testing Thermocouple\n")
         print("DAQ: Testing Thermocouple")
@@ -181,7 +201,16 @@ def main():
         test = accelerometer.getAccel()
         log.write("DAQ: Accelerometer test Successful\n")
         print("DAQ: Accelerometer test Successful")
-        mercury_telemetry_pipeline.send_log("DAQ: Thermocouple test Successful")
+        mercury_telemetry_pipeline.send_log("DAQ: Accelerometer test Successful")
+    if (ENABLE_GYRO):
+        log.write("DAQ: Testing Gyro\n")
+        print("DAQ: Testing Gyro")
+        mercury_telemetry_pipeline.send_log("DAQ: Testing Gyro")
+        gyro = Gyro()
+        test = gyro.getAccel()
+        log.write("DAQ: Gyro test Successful\n")
+        print("DAQ: Gyro test Successful")
+        mercury_telemetry_pipeline.send_log("DAQ: Gyro test Successful")
     if (ENABLE_ADC):
         log.write("DAQ: Testing ADC\n")
         print("DAQ: Testing ADC")
@@ -220,6 +249,9 @@ def main():
     if (ENABLE_PIACCELEROMETER):
         args = [accelerometer, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_accelerations, *args))
+    if (ENABLE_GYRO):
+        args = [gyro, formula_calc, mercury_telemetry_pipeline, log]
+        futures.append(executor.submit(collect_gyro, *args))
     if (ENABLE_ADC):
         args = [adc, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_sus_angles, *args))
