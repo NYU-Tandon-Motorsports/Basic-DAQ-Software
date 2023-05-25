@@ -73,7 +73,7 @@ def collect_gyro(gyro, formula_calc, mercury_telemetry_pipeline, log):
         output = ""
         try:
             acceleration = gyro.getAccel()
-            data = Datapoint(sensor_ids.GYRO, "Gyro", 3, ["yaw","pitch","roll"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
+            data = Datapoint(sensor_ids.PIGYRO, "Gyro", 3, ["yaw","pitch","roll"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
@@ -236,7 +236,7 @@ def main():
 
     driver_telemetry.init_driver_telem()
 
-    executor = ThreadPoolExecutor(max_workers=len(arduino_candidates) + ENABLE_THERMOCOUPLE + ENABLE_PIACCELEROMETER +ENABLE_GPS + ENABLE_ADC)
+    executor = ThreadPoolExecutor(max_workers=len(arduino_candidates) + ENABLE_THERMOCOUPLE + ENABLE_PIACCELEROMETER +ENABLE_GYRO+ENABLE_GPS + ENABLE_ADC)
     futures = []
     print("starting sensor read threads (press shift+q to quit)")
     for serial_in in serial_inputs:
