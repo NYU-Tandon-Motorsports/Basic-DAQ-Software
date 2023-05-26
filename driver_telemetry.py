@@ -47,7 +47,7 @@ executor = ThreadPoolExecutor(max_workers=1)
 # car states
 accel_state = 0
 angle_state = 0
-current_time = time.time()
+current_time = 0
 
 
 
@@ -138,7 +138,7 @@ def pygame_task():
         # TIMER
         # timer outline
         pygame.draw.rect(screen, PINK, [(WIDTH / 2) - (WIDTH / 7), HEIGHT / 40 - 10, WIDTH / (3.5), HEIGHT / 7], 5)
-        start = time.time() - current_time
+        start = pygame.time.get_ticks()
         render_time(screen, start, 50)
         #print("hello2")
         pygame.display.flip()
