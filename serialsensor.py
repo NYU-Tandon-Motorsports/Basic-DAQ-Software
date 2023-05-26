@@ -44,6 +44,16 @@ def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
 def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
     mercury_last_sent = 0
+    try:
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        #GPIO.add_event_detect(21, GPIO.BOTH, callback=reset_timer)
+
+    finally:
+        GPIO.cleanup()
+
+
+
     while (True):  # Condition for when to stop the program currently 60 seconds
         output = ""
         try:
@@ -60,7 +70,6 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
             output = str(traceback.format_exc())
         print(output)
         try:
-            GPIO.setmode(GPIO.BCM)
             print(GPIO.input(21))
         except Exception as e:
             traceback.print_exc()
@@ -216,14 +225,6 @@ def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline, mercury_la
     return output, mercury_last_sent
 
 def main():
-    try:
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        #GPIO.add_event_detect(21, GPIO.BOTH, callback=reset_timer)
-
-    finally:
-        GPIO.cleanup()
-
 
     now = datetime.now()
     mercury_telemetry_pipeline = Pipeline()
