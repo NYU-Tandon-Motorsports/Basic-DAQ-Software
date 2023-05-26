@@ -19,6 +19,8 @@ from pigyro import Gyro
 from fast_sus_ADC import SusADC
 from datapoint import Datapoint
 import GPS
+import RPi.GPIO as GPIO
+
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 ENABLE_PIACCELEROMETER = False
 ENABLE_THERMOCOUPLE = True
@@ -57,6 +59,7 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
         except Exception as e:
             output = str(traceback.format_exc())
         print(output)
+        print(GPIO.input(21))
         log.write(output + "\n")
         time.sleep(1)
 
@@ -209,6 +212,14 @@ def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline, mercury_la
     return output, mercury_last_sent
 
 def main():
+    try:
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        #GPIO.add_event_detect(21, GPIO.BOTH, callback=reset_timer)
+
+    finally:
+        GPIO.cleanup()
+
 
     now = datetime.now()
     mercury_telemetry_pipeline = Pipeline()
