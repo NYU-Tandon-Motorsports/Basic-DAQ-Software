@@ -52,13 +52,13 @@ current_time = 0
 
 
 def init_driver_telem():
-    #try:
-    #    GPIO.setmode(GPIO.BCM)
-    ##    GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-      #  GPIO.add_event_detect(6, GPIO.BOTH, callback=reset_timer)
+    try:
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(21, GPIO.RISING, callback=reset_timer)
 
-    #finally:
-    #    GPIO.cleanup()
+    finally:
+        GPIO.cleanup()
 
     print("Starting PyGame")
     executor.submit(pygame_task)
@@ -137,7 +137,7 @@ def pygame_task():
         # TIMER
         # timer outline
         pygame.draw.rect(screen, PINK, [(WIDTH / 2) - (WIDTH / 7), HEIGHT / 40 - 10, WIDTH / (3.5), HEIGHT / 7], 5)
-        start = pygame.time.get_ticks()
+        start = pygame.time.get_ticks() - current_time
         render_time(screen, start, 50)
         #print("hello2")
         pygame.display.flip()
@@ -189,4 +189,4 @@ def ticks(screen, rg_strt, rg_end, r, angle, strt_angle, width_center, height_ce
 
 def reset_timer(channel):
     global current_time
-    current_time = time.time()
+    current_time = pygame.time.get_ticks()
