@@ -7,6 +7,7 @@ from datetime import datetime
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from math import pi, cos, sin
+import RPi.GPIO as GPIO
 
 ENABLE_DISPLAY = False
 
@@ -46,10 +47,20 @@ executor = ThreadPoolExecutor(max_workers=1)
 # car states
 accel_state = 0
 angle_state = 0
-current_time = datetime.now()
+current_time = time.time()
+
+
 
 
 def init_driver_telem():
+    try:
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(6, GPIO.RISING, callback=reset_timer)
+
+    finally:
+        GPIO.cleanup()
+
     print("Starting PyGame")
     executor.submit(pygame_task)
 
@@ -127,7 +138,7 @@ def pygame_task():
         # TIMER
         # timer outline
         pygame.draw.rect(screen, PINK, [(WIDTH / 2) - (WIDTH / 7), HEIGHT / 40 - 10, WIDTH / (3.5), HEIGHT / 7], 5)
-        start = pygame.time.get_ticks()
+        start = time.time() - current_time
         render_time(screen, start, 50)
         #print("hello2")
         pygame.display.flip()
@@ -176,3 +187,7 @@ def ticks(screen, rg_strt, rg_end, r, angle, strt_angle, width_center, height_ce
             tick_end = polar_to_cartesian(r - 15, (number * angle + strt_angle), width_center, height_center)
             pygame.draw.line(screen, PINK, tick_start, tick_end, 2)
 
+
+def reset_timer(channel):
+    global current_time
+    current_time = time.time()
