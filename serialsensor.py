@@ -50,8 +50,7 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
         #GPIO.add_event_detect(21, GPIO.BOTH, callback=reset_timer)
     except:
         traceback.print_exc()
-    finally:
-        GPIO.cleanup()
+
 
 
 
