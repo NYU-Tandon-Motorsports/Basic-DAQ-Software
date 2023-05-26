@@ -25,25 +25,33 @@ ENABLE_GPS = False
 ENABLE_ADC = False
 ENABLE_GYRO = True
 
+MERCURY_TIMEOUT = 0.5  #Wait time between post requests sent to live telemetry
+
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
+    mercury_last_sent = 0
     while(True):  # Condition for when to stop the program currently 60 seconds
-        output = parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline)
+
+        output, mercury_last_sent = parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline, mercury_last_sent)
         if output != "" and output is not None and ord(output[0]) != 0:
             log.write(bytes(output, 'utf-8').decode('utf-8', 'ignore') + "\n")
     serial_in.close()
 
 def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
+    mercury_last_sent = 0
     while (True):  # Condition for when to stop the program currently 60 seconds
         output = ""
         try:
             temperature = thermocouple.getTemperature()
-            data = Datapoint(sensor_ids.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], ["C"], time.time() - start_time)
+            data_capture_time = time.time()
+            data = Datapoint(sensor_ids.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], ["C"], data_capture_time - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
-            mercury_telemetry_pipeline.send_packet(data)
+            if data_capture_time - mercury_last_sent > MERCURY_TIMEOUT:
+                mercury_telemetry_pipeline.send_packet(data)
+                mercury_last_sent = data_capture_time
         except Exception as e:
             output = str(traceback.format_exc())
         print(output)
@@ -52,15 +60,19 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
 
 def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
+    mercury_last_sent = 0
     while (True):  # Condition for when to stop the program currently 60 seconds
         output = ""
         try:
             acceleration = accelerometer.getAccel()
-            data = Datapoint(sensor_ids.PIACCELEROMETER, "Accelerometer", 3, ["x","y","z"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
+            data_capture_time = time.time()
+            data = Datapoint(sensor_ids.PIACCELEROMETER, "Accelerometer", 3, ["x","y","z"], acceleration, ["m/s2","m/s2","m/s2"], data_capture_time - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
-            mercury_telemetry_pipeline.send_packet(data)
+            if data_capture_time - mercury_last_sent > MERCURY_TIMEOUT:
+                mercury_telemetry_pipeline.send_packet(data)
+                mercury_last_sent = data_capture_time
         except Exception as e:
             output = str(traceback.format_exc())
         print(output)
@@ -69,15 +81,19 @@ def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipelin
 
 def collect_gyro(gyro, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
+    mercury_last_sent = 0
     while (True):  # Condition for when to stop the program currently 60 seconds
         output = ""
         try:
             acceleration = gyro.getAccel()
-            data = Datapoint(sensor_ids.PIGYRO, "Gyro", 3, ["yaw","pitch","roll"], acceleration, ["m/s2","m/s2","m/s2"], time.time() - start_time)
+            data_capture_time = time.time()
+            data = Datapoint(sensor_ids.PIGYRO, "Gyro", 3, ["yaw","pitch","roll"], acceleration, ["m/s2","m/s2","m/s2"], data_capture_time - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
-            mercury_telemetry_pipeline.send_packet(data)
+            if data_capture_time - mercury_last_sent > MERCURY_TIMEOUT:
+                mercury_telemetry_pipeline.send_packet(data)
+                mercury_last_sent = data_capture_time
         except Exception as e:
             output = str(traceback.format_exc())
         print(output)
@@ -86,15 +102,19 @@ def collect_gyro(gyro, formula_calc, mercury_telemetry_pipeline, log):
 
 def collect_sus_angles(adc, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
+    mercury_last_sent = 0
     while (True):  # Condition for when to stop the program currently 60 seconds
         output = ""
         try:
             angle = adc.getVals()
-            data = Datapoint(sensor_ids.SUS_ADC, "Sus-Angles", 3, ["FL","FR","RL", "RR"], [0,angle,0,0], ["deg","deg","deg","deg"], time.time() - start_time)
+            data_capture_time = time.time()
+            data = Datapoint(sensor_ids.SUS_ADC, "Sus-Angles", 3, ["FL","FR","RL", "RR"], [0,angle,0,0], ["deg","deg","deg","deg"], data_capture_time - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
-            mercury_telemetry_pipeline.send_packet(data)
+            if data_capture_time - mercury_last_sent > MERCURY_TIMEOUT:
+                mercury_telemetry_pipeline.send_packet(data)
+                mercury_last_sent = data_capture_time
         except Exception as e:
             output = str(traceback.format_exc())
         print(output)
@@ -124,8 +144,9 @@ def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, log):
 
 
 
-def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline):
+def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline, mercury_last_sent):
     raw = serial_in.readline()
+    data_capture_time = time.time()
     output = ""
     try:  # the try block is here because the serial stream can sometimes have extraneous bytes that cant be converted to plain text such as 00, 0A, etc.
         output = raw.decode()  # decode the binary stream
@@ -153,12 +174,14 @@ def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline):
                 output = str(data)
                 print(output)
                 driver_telemetry.send_data(data)
-                mercury_telemetry_pipeline.send_packet(data)
+                if data_capture_time - mercury_last_sent > MERCURY_TIMEOUT:
+                    mercury_telemetry_pipeline.send_packet(data)
+                    mercury_last_sent = data_capture_time
         else:
             print(output)  # unmarked serial input
     except UnicodeDecodeError:  # serial decode didnt work
         output = ""
-    return output
+    return output, mercury_last_sent
 
 def main():
 
