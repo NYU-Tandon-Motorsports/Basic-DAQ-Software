@@ -53,13 +53,13 @@ current_time = 0
 
 
 def init_driver_telem():
-    try:
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(21, GPIO.RISING, callback=reset_timer)
-
-    finally:
-        GPIO.cleanup()
+    #try:
+    #    GPIO.setmode(GPIO.BCM)
+    #    GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    #    GPIO.add_event_detect(21, GPIO.RISING, callback=reset_timer)#
+#
+ #   finally:
+ #       GPIO.cleanup()
 
     print("Starting PyGame")
     executor.submit(pygame_task)
