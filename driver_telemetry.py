@@ -1,3 +1,5 @@
+import traceback
+
 from datapoint import Datapoint
 import sensor_ids
 import pygame
@@ -52,6 +54,14 @@ current_time = 0
 
 
 def init_driver_telem():
+    try:
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(21, GPIO.RISING, callback=reset_timer)
+    except Exception:
+        traceback.print_exc()
+
+
     print("Starting PyGame")
     executor.submit(pygame_task)
 
