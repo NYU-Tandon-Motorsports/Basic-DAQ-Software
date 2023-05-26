@@ -45,7 +45,7 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
         try:
             temperature = thermocouple.getTemperature()
             data_capture_time = time.time()
-            data = Datapoint(sensor_ids.CVT_TEMP, "CVT Temperature", 1, ["temperature"], [temperature], ["C"], data_capture_time - start_time)
+            data = Datapoint(sensor_ids.ELECTRONICS_THERMOCOUPLE, "CVT Temperature", 1, ["temperature"], [temperature], ["C"], data_capture_time - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
