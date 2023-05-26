@@ -59,7 +59,10 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
         except Exception as e:
             output = str(traceback.format_exc())
         print(output)
-        print(GPIO.input(21))
+        try:
+            print(GPIO.input(21))
+        except Exception as e:
+            traceback.print_exc()
         log.write(output + "\n")
         time.sleep(1)
 
