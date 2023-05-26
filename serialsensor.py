@@ -60,6 +60,7 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
             output = str(traceback.format_exc())
         print(output)
         try:
+            GPIO.setmode(GPIO.BCM)
             print(GPIO.input(21))
         except Exception as e:
             traceback.print_exc()
