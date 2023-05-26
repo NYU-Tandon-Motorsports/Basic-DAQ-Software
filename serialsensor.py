@@ -13,6 +13,7 @@ import sensor_ids
 from concurrent.futures import ThreadPoolExecutor
 import concurrent.futures
 from thermocouple import Thermocouple
+from picputemp import CPUTemp
 from piaccelerometer import Accelerometer
 from pigyro import Gyro
 from fast_sus_ADC import SusADC
@@ -21,6 +22,7 @@ import GPS
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 ENABLE_PIACCELEROMETER = True
 ENABLE_THERMOCOUPLE = True
+ENABLE_PI_CPUTEMP = True
 ENABLE_GPS = True
 ENABLE_ADC = False
 ENABLE_GYRO = True
@@ -57,6 +59,29 @@ def collect_temperatures(thermocouple, formula_calc, mercury_telemetry_pipeline,
         print(output)
         log.write(output + "\n")
         time.sleep(1)
+
+def collect_CPUTemps(cputemp, formula_calc, mercury_telemetry_pipeline, log):
+    start_time = time.time()
+    mercury_last_sent = 0
+    while (True):  # Condition for when to stop the program currently 60 seconds
+        output = ""
+        try:
+            temperature = cputemp.getCPUTEMP()
+            data_capture_time = time.time()
+            data = Datapoint(sensor_ids.CPUTEMP, "CPU Temperature", 1, ["temperature"], [temperature], ["C"], data_capture_time - start_time)
+            formula_calc.apply_calculation(data)
+            output = str(data)
+            driver_telemetry.send_data(data)
+            if data_capture_time - mercury_last_sent > MERCURY_TIMEOUT:
+                mercury_telemetry_pipeline.send_packet(data)
+                mercury_last_sent = data_capture_time
+        except Exception as e:
+            output = str(traceback.format_exc())
+        print(output)
+        log.write(output + "\n")
+        time.sleep(1)
+
+
 
 def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -206,8 +231,10 @@ def main():
     """Each serial in represents an arduino plugged in VIA USB. Each arduino requires a separate serial instance"""
     # serial_in2 = serial.Serial('/dev/ttyUSB1', 9600, timeout=1)
     thermocouple = None
+    cputemp = None
     accelerometer = None
     gyro = None
+    adc = None
     if (ENABLE_THERMOCOUPLE):
         log.write("DAQ: Testing Thermocouple\n")
         print("DAQ: Testing Thermocouple")
@@ -216,6 +243,14 @@ def main():
         test = thermocouple.getTemperature()
         log.write("DAQ: Thermocouple test Successful\n")
         print("DAQ: Thermocouple test Successful")
+    if (ENABLE_PI_CPUTEMP):
+        log.write("DAQ: Testing CPU Temp\n")
+        print("DAQ: Testing CPU Temp")
+        mercury_telemetry_pipeline.send_log("DAQ: Testing CPU Temp")
+        cputemp = CPUTemp()
+        test = cputemp.getCPUTEMP()
+        log.write("DAQ: CPU Temp test Successful\n")
+        print("DAQ: CPU Temp test Successful")
     if (ENABLE_PIACCELEROMETER):
         log.write("DAQ: Testing Accelerometer\n")
         print("DAQ: Testing Accelerometer")
@@ -259,7 +294,7 @@ def main():
 
     driver_telemetry.init_driver_telem()
 
-    executor = ThreadPoolExecutor(max_workers=len(arduino_candidates) + ENABLE_THERMOCOUPLE + ENABLE_PIACCELEROMETER +ENABLE_GYRO+ENABLE_GPS + ENABLE_ADC)
+    executor = ThreadPoolExecutor(max_workers=len(arduino_candidates) + ENABLE_THERMOCOUPLE + ENABLE_PI_CPUTEMP + ENABLE_PIACCELEROMETER +ENABLE_GYRO+ENABLE_GPS + ENABLE_ADC)
     futures = []
     print("starting sensor read threads (press shift+q to quit)")
     for serial_in in serial_inputs:
@@ -269,6 +304,9 @@ def main():
     if (ENABLE_THERMOCOUPLE):
         args = [thermocouple, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_temperatures, *args))
+    if (ENABLE_PI_CPUTEMP):
+        args = [cputemp, formula_calc, mercury_telemetry_pipeline, log]
+        futures.append(executor.submit(collect_CPUTemps, *args))
     if (ENABLE_PIACCELEROMETER):
         args = [accelerometer, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_accelerations, *args))

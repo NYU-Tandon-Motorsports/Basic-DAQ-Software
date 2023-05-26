@@ -10,3 +10,4 @@ numpy
 raspberrypi-tm1637
 keyboard
 pygame
+gpiozero
