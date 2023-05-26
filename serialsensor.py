@@ -20,12 +20,12 @@ from fast_sus_ADC import SusADC
 from datapoint import Datapoint
 import GPS
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
-ENABLE_PIACCELEROMETER = True
+ENABLE_PIACCELEROMETER = False
 ENABLE_THERMOCOUPLE = True
-ENABLE_PI_CPUTEMP = True
-ENABLE_GPS = True
+ENABLE_PI_CPUTEMP = False
+ENABLE_GPS = False
 ENABLE_ADC = False
-ENABLE_GYRO = True
+ENABLE_GYRO = False
 
 MERCURY_TIMEOUT = 0.5  #Wait time between post requests sent to live telemetry
 
