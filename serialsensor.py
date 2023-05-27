@@ -20,7 +20,8 @@ from pigyro import Gyro
 from fast_sus_ADC import SusADC
 from datapoint import Datapoint
 import GPS
-import keyboard
+from pynput.keyboard import Listener
+
 
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 ENABLE_PIACCELEROMETER = False
@@ -34,12 +35,10 @@ MERCURY_TIMEOUT = 0.5  #Wait time between post requests sent to live telemetry
 
 
 
-def toggle_telem_callback(log):
+def on_press(key):
     if (static_pipeline.ENABLE_TELEMETRY == True):
-        log.write("DAQ: Disabling Mercury Telemetry \n")
         print("DAQ: Disabling Mercury Telemetry")
     else:
-        log.write("DAQ: Enabling Mercury Telemetry \n")
         print("DAQ: Enabling Mercury Telemetry")
 
     static_pipeline.ENABLE_TELEMETRY = not static_pipeline.ENABLE_TELEMETRY
@@ -337,7 +336,8 @@ def main():
         args = [gps_ser, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_gps, *args))
 
-    keyboard.on_press_key("t", lambda _:toggle_telem_callback(log))
+    with Listener(on_press=on_press) as listener:
+        listener.join()
 
     concurrent.futures.wait(futures)
     time.sleep(2)

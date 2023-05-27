@@ -8,6 +8,6 @@ adafruit-circuitpython-ads1x15
 adafruit-circuitpython-pct2075
 numpy
 raspberrypi-tm1637
-keyboard
+pynput
 pygame
 gpiozero
