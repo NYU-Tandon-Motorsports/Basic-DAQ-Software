@@ -195,9 +195,9 @@ def polar_to_cartesian(r, theta, width_center, height_center):
 
 
 def clock_nums(screen, rg_strt, rg_end, mult, size, r, angle, strt_angle, width_center, height_center):
-    for number in range(rg_strt, rg_end):
-        write_text(screen, str(number * mult), size,
-                   polar_to_cartesian(r, (number * angle + strt_angle), width_center, height_center))
+    for number in range(rg_strt, rg_end, mult):
+        write_text(screen, str(number), size,
+                   polar_to_cartesian(r, ((number / mult) * angle + strt_angle), width_center, height_center))
 
 
 def ticks(screen, rg_strt, rg_end, r, angle, strt_angle, width_center, height_center):
