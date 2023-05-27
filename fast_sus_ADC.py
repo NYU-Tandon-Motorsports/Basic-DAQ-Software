@@ -17,7 +17,7 @@ class SusADC:
         self.sus_adc.mode = Mode.CONTINUOUS
         self.sus_adc.data_rate = RATE
 
-        self.testchan = AnalogIn(self.sus_adc, ADS.P1)
+        self.testchan = AnalogIn(self.sus_adc, ADS.P0)
     def getVals(self):
         val = self.testchan.value
         return(val)

@@ -155,9 +155,10 @@ def collect_sus_angles(adc, formula_calc, mercury_telemetry_pipeline, log):
             if data_capture_time - mercury_last_sent > MERCURY_TIMEOUT:
                 mercury_telemetry_pipeline.send_packet(data)
                 mercury_last_sent = data_capture_time
+                print(output)
         except Exception as e:
             output = str(traceback.format_exc())
-        print(output)
+            print(output)
         log.write(output + "\n")
         time.sleep(0.001)
 
