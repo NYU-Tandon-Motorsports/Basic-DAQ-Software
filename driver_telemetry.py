@@ -10,12 +10,21 @@ from concurrent.futures import ThreadPoolExecutor
 from math import pi, cos, sin
 import RPi.GPIO as GPIO
 
+
 ENABLE_DISPLAY = False
 
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 PINK = (227, 0, 166)
+
+GREEN = (0,255,0)
+YELLOW = (255,255,0)
+PURPLE = (255,0,255)
+
+LAPCOLOR = WHITE
+
+
 
 THE_STRING = "MM" + ':' + "SS" + ':' + "MS"
 
@@ -49,8 +58,11 @@ executor = ThreadPoolExecutor(max_workers=1)
 speed_state = 0
 rpm_state = 0
 current_time = 0
-best_lap = "00:00:00"
-past_lap = "00:00:00"
+best_lap = 0
+past_lap = 0
+
+laps = []
+
 
 
 
@@ -144,7 +156,7 @@ def pygame_task():
             rpm = 0
         if rpm > 5000:
             rpm = 5000
-        theta = (rpm * (270.0 / 50.0)) + (223.2 - (270.0 / 50.0))
+        theta = (rpm * (270.0 / 5000)) + (223.2 - (270.0 / 5000))
         pygame.draw.line(screen, PINK, (((WIDTH / 4) * 3), (HEIGHT / 2) + 45),
                          polar_to_cartesian(140, theta, (WIDTH / 4) * 3, (HEIGHT / 2) + 45), 4)
 
@@ -157,16 +169,16 @@ def pygame_task():
         # best lap
         write_text(screen, "Best Lap", 25, (((WIDTH / 3.5) / 2) + 20, 12))
         pygame.draw.rect(screen, PINK, [0 + 20, HEIGHT / 40 + 15, WIDTH / 3.5, HEIGHT / 8], 3)
-        write_text(screen, best_lap, 50, (((WIDTH / 3.5) / 2) + 20, HEIGHT / 8.5))
+        render_time(screen,WHITE, best_lap, 50, (((WIDTH / 3.5) / 2) + 20, HEIGHT / 8.5))
         # current lap
         write_text(screen, "Current Lap", 25, (((WIDTH / 3.5) / 2) + (WIDTH / 3 + 20), 12))
         pygame.draw.rect(screen, PINK, [WIDTH / 3 + 20, HEIGHT / 40 + 15, WIDTH / 3.5, HEIGHT / 8], 3)
         start = pygame.time.get_ticks() - current_time
-        render_time(screen, start, 50, (WIDTH / 2, HEIGHT / 8.5))
+        render_time(screen,WHITE, start, 50, (WIDTH / 2, HEIGHT / 8.5))
         # previous lap
         write_text(screen, "Past Lap", 25, (((WIDTH / 3.5) / 2) + ((WIDTH / 3) * 2 + 20), 12))
         pygame.draw.rect(screen, PINK, [((WIDTH / 3) * 2) + 20, HEIGHT / 40 + 15, WIDTH / 3.5, HEIGHT / 8], 3)
-        write_text(screen, past_lap, 50, (((WIDTH / 3.5) / 2) + ((WIDTH / 3) * 2 + 20), HEIGHT / 8.5))
+        render_time(screen,LAPCOLOR, 50, (((WIDTH / 3.5) / 2) + ((WIDTH / 3) * 2 + 20), HEIGHT / 8.5))
 
         pygame.display.flip()
         clock.tick(60)
@@ -181,11 +193,14 @@ def write_text(screen, text, size, position):
     screen.blit(text, text_rect)
 
 
-def render_time(screen, start, size, position):
+def render_time(screen,color, start, size, position):
     hundredth_of_a_second = int(str(start)[-2:])  # hundredth of a second
     time_in_ms = time((start // 1000) // 3600, ((start // 1000) // 60 % 60), (start // 1000) % 60)
     time_string = "{}{}{:02d}".format(time_in_ms.strftime("%M:%S"), ':', hundredth_of_a_second)
-    write_text(screen, time_string, size, position)
+    font = pygame.font.SysFont("Arial", size, True, False)
+    text = font.render(time_string, True, color)
+    text_rect = text.get_rect(center=(position))
+    screen.blit(text, text_rect)
 
 # theta is in degrees
 def polar_to_cartesian(r, theta, width_center, height_center):
@@ -216,4 +231,17 @@ def ticks(screen, rg_strt, rg_end, r, angle, strt_angle, width_center, height_ce
 
 def reset_timer(channel):
     global current_time
+    global past_lap
+    global best_lap
+    last_lap_temp = pygame.time.get_ticks() - current_time
+
+    if (best_lap == 0 or last_lap_temp < best_lap):
+        LAPCOLOR = PURPLE
+    elif (last_lap_temp / best_lap < 1.25):
+        LAPCOLOR = GREEN
+    else:
+        LAPCOLOR = YELLOW
+    if(best_lap == 0 or last_lap_temp < best_lap):
+        best_lap = last_lap_temp
+    past_lap = last_lap_temp
     current_time = pygame.time.get_ticks()
