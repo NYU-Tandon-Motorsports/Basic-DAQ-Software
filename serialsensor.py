@@ -6,6 +6,7 @@ import serial
 from serial.tools import list_ports
 from datetime import datetime
 import driver_telemetry
+import mercury_telemetry_pipeline as static_pipeline
 from mercury_telemetry_pipeline import Pipeline
 import datapoint
 from formulas import Formulas
@@ -19,7 +20,7 @@ from pigyro import Gyro
 from fast_sus_ADC import SusADC
 from datapoint import Datapoint
 import GPS
-import RPi.GPIO as GPIO
+import keyboard
 
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 ENABLE_PIACCELEROMETER = False
@@ -30,6 +31,18 @@ ENABLE_ADC = False
 ENABLE_GYRO = False
 
 MERCURY_TIMEOUT = 0.5  #Wait time between post requests sent to live telemetry
+
+
+
+def toggle_telem_callback(log):
+    if (static_pipeline.ENABLE_TELEMETRY == True):
+        log.write("DAQ: Disabling Mercury Telemetry \n")
+        print("DAQ: Disabling Mercury Telemetry")
+    else:
+        log.write("DAQ: Enabling Mercury Telemetry \n")
+        print("DAQ: Enabling Mercury Telemetry")
+
+    static_pipeline.ENABLE_TELEMETRY = not static_pipeline.ENABLE_TELEMETRY
 
 def collect_data(serial_in, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -323,6 +336,8 @@ def main():
         gps_ser = serial.Serial(GPS.port, baudrate=115200, timeout=0.5, rtscts=True, dsrdtr=True)
         args = [gps_ser, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_gps, *args))
+
+    keyboard.on_press_key("t", lambda _:toggle_telem_callback(log))
 
     concurrent.futures.wait(futures)
     time.sleep(2)
