@@ -160,7 +160,7 @@ def collect_sus_angles(adc, formula_calc, mercury_telemetry_pipeline, log):
             output = str(traceback.format_exc())
             print(output)
         log.write(output + "\n")
-        time.sleep(0.001)
+        #time.sleep(0.001)
 
 def collect_gps(gps_port, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
