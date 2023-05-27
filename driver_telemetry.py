@@ -178,7 +178,7 @@ def pygame_task():
         # previous lap
         write_text(screen, "Past Lap", 25, (((WIDTH / 3.5) / 2) + ((WIDTH / 3) * 2 + 20), 12))
         pygame.draw.rect(screen, PINK, [((WIDTH / 3) * 2) + 20, HEIGHT / 40 + 15, WIDTH / 3.5, HEIGHT / 8], 3)
-        render_time(screen,LAPCOLOR, start, 50, (((WIDTH / 3.5) / 2) + ((WIDTH / 3) * 2 + 20), HEIGHT / 8.5))
+        render_time(screen,LAPCOLOR, past_lap, 50, (((WIDTH / 3.5) / 2) + ((WIDTH / 3) * 2 + 20), HEIGHT / 8.5))
 
         pygame.display.flip()
         clock.tick(60)
@@ -235,7 +235,7 @@ def reset_timer(channel):
     global best_lap
     global LAPCOLOR
     last_lap_temp = pygame.time.get_ticks() - current_time
-    if last_lap_temp < 1:
+    if last_lap_temp < 5:
         return
 
     if (best_lap == 0 or last_lap_temp < best_lap):
