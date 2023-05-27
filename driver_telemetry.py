@@ -94,7 +94,7 @@ def pygame_task():
 
     clock = pygame.time.Clock()
     pygame.display.set_caption("Dashboard")
-
+    pygame.mouse.set_visible(False)
     while (True):
         #print("hello0")
         screen.fill(BLACK)
