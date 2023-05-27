@@ -233,6 +233,7 @@ def reset_timer(channel):
     global current_time
     global past_lap
     global best_lap
+    global LAPCOLOR
     last_lap_temp = pygame.time.get_ticks() - current_time
 
     if (best_lap == 0 or last_lap_temp < best_lap):
