@@ -169,7 +169,7 @@ def pygame_task():
         # best lap
         write_text(screen, "Best Lap", 25, (((WIDTH / 3.5) / 2) + 20, 12))
         pygame.draw.rect(screen, PINK, [0 + 20, HEIGHT / 40 + 15, WIDTH / 3.5, HEIGHT / 8], 3)
-        render_time(screen,WHITE, start, 50, (((WIDTH / 3.5) / 2) + 20, HEIGHT / 8.5))
+        render_time(screen,WHITE, best_lap, 50, (((WIDTH / 3.5) / 2) + 20, HEIGHT / 8.5))
         # current lap
         write_text(screen, "Current Lap", 25, (((WIDTH / 3.5) / 2) + (WIDTH / 3 + 20), 12))
         pygame.draw.rect(screen, PINK, [WIDTH / 3 + 20, HEIGHT / 40 + 15, WIDTH / 3.5, HEIGHT / 8], 3)
