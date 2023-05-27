@@ -25,10 +25,10 @@ from pynput.keyboard import Listener
 
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
 ENABLE_PIACCELEROMETER = False
-ENABLE_THERMOCOUPLE = True
+ENABLE_THERMOCOUPLE = False
 ENABLE_PI_CPUTEMP = False
 ENABLE_GPS = False
-ENABLE_ADC = False
+ENABLE_ADC = True
 ENABLE_GYRO = False
 
 MERCURY_TIMEOUT = 0.5  #Wait time between post requests sent to live telemetry
