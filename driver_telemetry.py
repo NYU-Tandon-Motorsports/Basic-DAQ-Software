@@ -235,6 +235,8 @@ def reset_timer(channel):
     global best_lap
     global LAPCOLOR
     last_lap_temp = pygame.time.get_ticks() - current_time
+    if last_lap_temp < 1:
+        return
 
     if (best_lap == 0 or last_lap_temp < best_lap):
         LAPCOLOR = PURPLE
