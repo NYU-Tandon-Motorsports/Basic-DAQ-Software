@@ -1,22 +1,19 @@
-
 int previousVoltage = 128;
-int thresholdVoltage = 10;
+int thresholdVoltage = 30;
 int sampleCount = 1;
-double FS = 7561.47;
+double FS = 7561.47/1.9;//7561.47 original
 double k = 1/FS;
 double deltaThreshold = 500; //200 rpm/sample
 double previousValue = -1;
 double tStart = 0;
-void setup() 
+void setup()
 {
-    pinMode(A1,INPUT);
+    pinMode(A1,INPUT_PULLUP);
     //analogReference(EXTERNAL);
     Serial.begin(9600);
     Serial.println("###Hall effect Test: IF ITS NOT WORKING, MAKE SURE THE MAGNET IS IN THE RIGHT ORIENTATION!!!");
     tStart = millis()/1000.0;
 }
-
-
 void loop() {
     //Serial.print("$$$1 SteeringAngle 1 voltage ");
     //Serial.print(voltage);
@@ -71,5 +68,5 @@ void loop() {
          Serial.println(millis()/1000.0);
          sampleCount = 1;
     }
-    previousVoltage = voltage;   
+    previousVoltage = voltage;
 }
