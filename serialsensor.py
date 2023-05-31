@@ -28,9 +28,9 @@ SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many ard
 ENABLE_PIACCELEROMETER = False
 ENABLE_THERMOCOUPLE = False
 ENABLE_PI_CPUTEMP = False
-ENABLE_GPS = False
-ENABLE_ADC = True
-ENABLE_SLOW_ADC = True
+ENABLE_GPS = True
+ENABLE_ADC = False
+ENABLE_SLOW_ADC = False
 ENABLE_GYRO = False
 
 MERCURY_TIMEOUT = 0.5  #Wait time between post requests sent to live telemetry
