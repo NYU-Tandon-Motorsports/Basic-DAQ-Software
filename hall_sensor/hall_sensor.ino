@@ -8,7 +8,7 @@ double previousValue = -1;
 double tStart = 0;
 void setup()
 {
-    pinMode(A1,INPUT_PULLUP);
+    pinMode(A2,INPUT_PULLUP);
     //analogReference(EXTERNAL);
     Serial.begin(9600);
     Serial.println("###Hall effect Test: IF ITS NOT WORKING, MAKE SURE THE MAGNET IS IN THE RIGHT ORIENTATION!!!");
@@ -17,7 +17,7 @@ void setup()
 void loop() {
     //Serial.print("$$$1 SteeringAngle 1 voltage ");
     //Serial.print(voltage);
-    int voltage = analogRead(A1);
+    int voltage = analogRead(A2);
     if (voltage > thresholdVoltage && previousVoltage > thresholdVoltage)
     {
         sampleCount++;

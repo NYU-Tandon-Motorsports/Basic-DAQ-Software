@@ -11,7 +11,8 @@ REMOTE_URL = "http://telemetry-nyubaja.herokuapp.com/measurement/"
 SENSOR_ID_DICT = {   # maps the Basic daq software sensor id to that which the user assigns in Mercury
     sensor_ids.LOG : 2,
     sensor_ids.PIACCELEROMETER : 3,
-    sensor_ids.GPS_SPEED : 4,
+    sensor_ids.GPS : 4,
+    sensor_ids.GPS_SPEED : 8,
     sensor_ids.PIGYRO : 5,
     sensor_ids.ELECTRONICS_THERMOCOUPLE : 6,
     sensor_ids.DOF9 : 7,
