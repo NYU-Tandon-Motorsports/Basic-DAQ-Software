@@ -21,7 +21,6 @@ from fast_sus_ADC import FastSusADC
 from slow_sus_adc import SlowSusADC
 from datapoint import Datapoint
 import GPS
-from pynput.keyboard import Listener
 
 
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
@@ -375,8 +374,13 @@ def main():
         args = [gps_ser, formula_calc, mercury_telemetry_pipeline, log]
         futures.append(executor.submit(collect_gps, *args))
 
-    with Listener(on_press=on_press) as listener:
-        listener.join()
+
+    try:
+        from pynput.keyboard import Listener
+        with Listener(on_press=on_press) as listener:
+            listener.join()
+    except:
+        print("NO DISPLAY DETECTED!")
 
     concurrent.futures.wait(futures)
     time.sleep(2)
