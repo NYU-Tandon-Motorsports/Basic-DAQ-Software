@@ -1,72 +1,40 @@
-int previousVoltage = 128;
-int thresholdVoltage = 30;
-int sampleCount = 1;
-double FS = 7561.47/1.9;//7561.47 original
-double k = 1/FS;
-double deltaThreshold = 500; //200 rpm/sample
-double previousValue = -1;
-double tStart = 0;
+double pulseWidthAdjustment = 1.0;
+double tStart1 = millis();
+double tStart2 = millis();
 void setup()
 {
-    pinMode(A2,INPUT_PULLUP);
-    //analogReference(EXTERNAL);
-    Serial.begin(9600);
+    pinMode(2,INPUT_PULLUP);
+    pinMode(3,INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(2),hall_1StopCounting,FALLING);
+    attachInterrupt(digitalPinToInterrupt(3),hall_2StopCounting,FALLING);
+    Serial.begin(115200);
     Serial.println("###Hall effect Test: IF ITS NOT WORKING, MAKE SURE THE MAGNET IS IN THE RIGHT ORIENTATION!!!");
-    tStart = millis()/1000.0;
 }
+
+void hall_1StopCounting()  //Falling edge
+{
+    cli();
+    double rpm = pulseWidthAdjustment * 60/((millis() - tStart1) / 1000);
+    tStart1 = millis();
+    Serial.print("$$$20 Hall_Sensor 1 speed ");
+    Serial.print(rpm);
+    Serial.print(" RPM ");
+    Serial.println(millis()/1000.0);
+    sei();
+}
+
+void hall_2StopCounting()
+{
+    cli();
+    double rpm = pulseWidthAdjustment * 60/((millis() - tStart2) / 1000);
+    tStart2 = millis();
+    Serial.print("$$$21 Hall_Sensor2 1 speed ");
+    Serial.print(rpm);
+    Serial.print(" RPM ");
+    Serial.println(millis()/1000.0);
+    sei();
+}
+
 void loop() {
-    //Serial.print("$$$1 SteeringAngle 1 voltage ");
-    //Serial.print(voltage);
-    int voltage = analogRead(A2);
-    if (voltage > thresholdVoltage && previousVoltage > thresholdVoltage)
-    {
-        sampleCount++;
-    }
-    else if (voltage < thresholdVoltage && previousVoltage > thresholdVoltage)
-    {
-         int n = sampleCount;
-         double T = n * k;
-         double rpm = 1/T * 60;
-         if (previousValue == -1)
-         {
-              if (millis()/1000 - tStart < 5)
-              {
-                   rpm = 0;
-                   previousValue = -1;
-              }
-              else
-              {
-                  previousValue = rpm;
-              }
-         }
-         else
-         {
-              if (abs(rpm - previousValue) > deltaThreshold)
-              {
-                  rpm = previousValue;
-              }
-              else
-              {
-                  previousValue = rpm;
-              }
-         }
-         if (rpm < 200)
-         {
-              deltaThreshold = 2000;
-         }
-         else if (rpm > 200 && rpm < 800)
-         {
-              deltaThreshold = 500;
-         }
-         else
-         {
-              deltaThreshold = 200;
-         }
-         Serial.print("$$$9 Hall_Sensor 1 speed ");
-         Serial.print(rpm);
-         Serial.print(" RPM ");
-         Serial.println(millis()/1000.0);
-         sampleCount = 1;
-    }
-    previousVoltage = voltage;
+   
 }

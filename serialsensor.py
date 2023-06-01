@@ -257,7 +257,7 @@ def main():
     ## serial.Serial('/dev/ttyUSB0', 9600, timeout=1)
     log.write("Serial data obtained from USB connection on " + now.strftime("%m/%d/%Y %H:%M:%S")+"\n\n")
     gps_device_signature = '2c7c:0125'
-    arduino_device_signature = "1a86:7523"#'0403:6015'#'0403:6015'#10c4:ea60'#
+    arduino_device_signature = r"\b1a86:7523\b|\b2341:0001\b"
     gps_candidates = list(list_ports.grep(gps_device_signature))
     gps_candidates.reverse()
     arduino_candidates = list(list_ports.grep(arduino_device_signature))
@@ -265,7 +265,7 @@ def main():
     log.write("DAQ: Initializing " + str(len(arduino_candidates)) + " Arduino(s)\n")
     print("DAQ: Initializing " + str(len(arduino_candidates)) + " Arduino(s)")
     mercury_telemetry_pipeline.send_log("DAQ: Initializing " + str(len(arduino_candidates)) + " Arduino(s)")
-    serial_inputs = [serial.Serial(arduino_candidate.device, 9600, timeout=1) for arduino_candidate in arduino_candidates]  # creates SERIAL_ARDUINO_COUNT serial inputs
+    serial_inputs = [serial.Serial(arduino_candidate.device, 115200, timeout=1) for arduino_candidate in arduino_candidates]  # creates SERIAL_ARDUINO_COUNT serial inputs
     log.write("DAQ: Successfully Initialized " + str(len(arduino_candidates)) + " Arduino(s)\n")
     print("DAQ: Successfully Initialized " + str(len(arduino_candidates)) + " Arduino(s)")
     mercury_telemetry_pipeline.send_log("DAQ: Successfully Initialized " + str(len(arduino_candidates)) + " Arduino(s)")

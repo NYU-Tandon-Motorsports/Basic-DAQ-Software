@@ -1,3 +1,4 @@
+import math
 import traceback
 
 from datapoint import Datapoint
@@ -8,7 +9,6 @@ from datetime import time
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from math import pi, cos, sin
-import RPi.GPIO as GPIO
 
 
 ENABLE_DISPLAY = False
@@ -31,6 +31,8 @@ THE_STRING = "MM" + ':' + "SS" + ':' + "MS"
 WIDTH, HEIGHT = 800, 480
 center = (510, HEIGHT / 2)
 clock_radius = 200
+
+WHEEL_DIAMETER = 24 # inches
 
 if ENABLE_DISPLAY:
     try:
@@ -55,8 +57,8 @@ display_right = tm1637.TM1637(clk=16, dio=21) if ENABLE_7_SEG else None
 executor = ThreadPoolExecutor(max_workers=1)
 
 # car states -> change based on  how you chose to read your data
+pre_rpm_state = 0
 speed_state = 0
-rpm_state = 0
 current_time = 0
 best_lap = 0
 past_lap = 0
@@ -68,6 +70,7 @@ bestlaps = [0]
 
 def init_driver_telem():
     try:
+        import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.add_event_detect(21, GPIO.RISING, callback=add_lap)
@@ -80,9 +83,9 @@ def init_driver_telem():
 
 
 def send_data(data: Datapoint):
-    if data.sense_id == sensor_ids.STRING_POTENTIOMETER:
-        global angle_state
-        angle_state = data.outputs[0]
+    if data.sense_id == sensor_ids.HALL_EFFECT:
+        global pre_rpm_state
+        pre_rpm_state = data.outputs[0]
 
 
 def pygame_task():
@@ -126,12 +129,12 @@ def pygame_task():
             speed = 0
         if (speed > 35):
             speed = 35
-        theta = (speed * (270.0 / 35.0)) + (223.2 - (270.0 / 35.0))
+        theta = (speed * (273 / 35)) + (222)
         # draw line on gauge indicating current speed
-        pygame.draw.line(screen, PINK, ((WIDTH / 2) / 2, HEIGHT / 2 + 45),
-                         polar_to_cartesian(140, theta, WIDTH / 4, (HEIGHT / 2) + 45), 4)
+        pygame.draw.line(screen, PINK, ((WIDTH / 2) / 2, HEIGHT / 2 + 65),
+                         polar_to_cartesian(140, theta, WIDTH / 4, (HEIGHT / 2) + 65), 4)
         # print speed below gauge
-        str_speed = str(speed)
+        str_speed = str(int(speed * 66360 / 60 / (math.pi * WHEEL_DIAMETER) * 10))
         pygame.draw.rect(screen, PINK, [WIDTH / 4.8, HEIGHT - 55, WIDTH / 12, HEIGHT / 9], 3)
         write_text(screen,str_speed, 50, (WIDTH / 4, (HEIGHT - 30)))
 
@@ -151,18 +154,18 @@ def pygame_task():
         # ticks
         ticks(screen, 0, 101, (clock_radius - 15), 2.7, 223.2, (WIDTH / 4) * 3, (HEIGHT / 2) + 65)
         # rpm = myfont.render(str(int(RPM_state)), 1, (255, 255, 255))
-        rpm = 1
+        rpm = int(pre_rpm_state)
         if rpm < 0:
             rpm = 0
         if rpm > 5000:
             rpm = 5000
-        theta = (rpm * (270.0 / 5000)) + (223.2 - (270.0 / 5000))
-        pygame.draw.line(screen, PINK, (((WIDTH / 4) * 3), (HEIGHT / 2) + 45),
-                         polar_to_cartesian(140, theta, (WIDTH / 4) * 3, (HEIGHT / 2) + 45), 4)
+        theta = (rpm * (273 / 5000)) + (222)
+        pygame.draw.line(screen, PINK, (((WIDTH / 4) * 3), (HEIGHT / 2) + 65),
+                         polar_to_cartesian(140, theta, (WIDTH / 4) * 3, (HEIGHT / 2) + 65), 4)
 
         # print RPM below gauge
         str_rpm = str(rpm)
-        pygame.draw.rect(screen, PINK, [(WIDTH / 2) + (WIDTH / 4.8), HEIGHT - 55, WIDTH / 12, HEIGHT / 9], 3)
+        pygame.draw.rect(screen, PINK, [(WIDTH / 2) + (WIDTH / 6), HEIGHT - 55, WIDTH / 6, HEIGHT / 9], 3)
         write_text(screen, str_rpm, 50, ((WIDTH / 4) * 3, (HEIGHT - 30)))
 
         # TIMER

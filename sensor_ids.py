@@ -1,7 +1,8 @@
 #physical sensors
 DOF9 = 0
 STEERING_ANGLE = 1
-HALL_EFFECT = 2
+HALL_EFFECT = 20
+HALL_EFFECT2 = 21
 FUEL = 3
 CVT_TEMP = 4
 GPS = 5
