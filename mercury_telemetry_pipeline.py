@@ -2,9 +2,10 @@ from datapoint import Datapoint
 from datetime import datetime
 import sensor_ids
 import requests
+import traceback
 from concurrent.futures import ThreadPoolExecutor
 
-ENABLE_TELEMETRY = False
+ENABLE_TELEMETRY = True
 LOCAL_URL = "http://localhost:8000/measurement/"
 REMOTE_URL = "http://telemetry-nyubaja.herokuapp.com/measurement/"
 
@@ -38,9 +39,9 @@ class Pipeline:
         """
         if ENABLE_TELEMETRY == False:
             return
-        global count
-        if count <= 0:
-            return
+        #global count
+        #if count <= 0:
+        #    return
 
         jsonbody = {
         "sensor_id": SENSOR_ID_DICT[data.sense_id],
@@ -48,16 +49,16 @@ class Pipeline:
         "date": datetime.now().isoformat(timespec='milliseconds'),
         }
         arg = [jsonbody]
-        count -= 1
+        #count -= 1
         self.executor.submit(self.post, *arg)
 
     def send_log(self, line):
 
         if ENABLE_TELEMETRY == False:
             return
-        global count
-        if count <= 0:
-            return
+        #global count
+        #if count <= 0:
+         #   return
 
         jsonbody = {
         "sensor_id": SENSOR_ID_DICT[sensor_ids.LOG],
@@ -65,11 +66,14 @@ class Pipeline:
         "date": datetime.now().isoformat(timespec='milliseconds'),
         }
         arg = [jsonbody]
-        count -= 1
+        #count -= 1
         self.executor.submit(self.post, *arg)
 
     def post(self, jsonbody):
-        global count
-        print(requests.post(REMOTE_URL, json=jsonbody, timeout = 5))
-        count += 1
+        #global count
+        try:
+            print(requests.post(REMOTE_URL, json=jsonbody, timeout = 5))
+        except:
+            traceback.print_exc()
+        #count += 1
 
