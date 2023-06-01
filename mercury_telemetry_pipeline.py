@@ -21,6 +21,8 @@ SENSOR_ID_DICT = {   # maps the Basic daq software sensor id to that which the u
 
 }
 
+count = 500
+
 class Pipeline:
 
     def __init__(self):
@@ -36,25 +38,38 @@ class Pipeline:
         """
         if ENABLE_TELEMETRY == False:
             return
+        global count
+        if count <= 0:
+            return
+
         jsonbody = {
         "sensor_id": SENSOR_ID_DICT[data.sense_id],
         "values": dict(zip(data.series_names,data.outputs)),
         "date": datetime.now().isoformat(timespec='milliseconds'),
         }
         arg = [jsonbody]
+        count -= 1
         self.executor.submit(self.post, *arg)
 
     def send_log(self, line):
+
         if ENABLE_TELEMETRY == False:
             return
+        global count
+        if count <= 0:
+            return
+
         jsonbody = {
         "sensor_id": SENSOR_ID_DICT[sensor_ids.LOG],
         "values": {"log" : line},
         "date": datetime.now().isoformat(timespec='milliseconds'),
         }
         arg = [jsonbody]
+        count -= 1
         self.executor.submit(self.post, *arg)
 
     def post(self, jsonbody):
-        print(requests.post(REMOTE_URL, json=jsonbody))
+        global count
+        print(requests.post(REMOTE_URL, json=jsonbody, timeout = 5))
+        count += 1
 

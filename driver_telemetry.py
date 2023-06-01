@@ -61,8 +61,8 @@ current_time = 0
 best_lap = 0
 past_lap = 0
 
-laps = []
-
+laps = [0]
+bestlaps = [0]
 
 
 
@@ -70,7 +70,7 @@ def init_driver_telem():
     try:
         GPIO.setmode(GPIO.BCM)
         GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(21, GPIO.RISING, callback=reset_timer)
+        GPIO.add_event_detect(21, GPIO.RISING, callback=add_lap)
     except Exception:
         traceback.print_exc()
 
@@ -229,11 +229,13 @@ def ticks(screen, rg_strt, rg_end, r, angle, strt_angle, width_center, height_ce
             pygame.draw.line(screen, PINK, tick_start, tick_end, 2)
 
 
-def reset_timer(channel):
+def add_lap(channel):  # calculate lap time, add lap to stack, check for bestlap and add that to stack, generate lap delta color, update dashboard
     global current_time
     global past_lap
     global best_lap
     global LAPCOLOR
+    global laps
+    global bestlaps
     last_lap_temp = pygame.time.get_ticks() - current_time
     if last_lap_temp < 3000:
         return
@@ -246,5 +248,42 @@ def reset_timer(channel):
         LAPCOLOR = YELLOW
     if(best_lap == 0 or last_lap_temp < best_lap):
         best_lap = last_lap_temp
+        bestlaps.append(best_lap)
+    laps.append(last_lap_temp)
     past_lap = last_lap_temp
+    current_time = pygame.time.get_ticks()
+
+def rm_lap(channel): # remove previous lap and best lap if necessary from stack and updates dashboard, does not interrupt timer
+    global current_time
+    global past_lap
+    global best_lap
+    global LAPCOLOR
+    global laps
+    global bestlaps
+    if len(laps) > 1:
+        ll = laps.pop()
+    if ll == bestlaps[-1] and len(bestlaps) > 1:
+        bestlaps.pop()
+    last_lap_temp = laps[-1]
+    best_lap = bestlaps[-1]
+    if (best_lap == 0 or last_lap_temp < best_lap):
+        LAPCOLOR = PURPLE
+    elif (last_lap_temp / best_lap < 1.25):
+        LAPCOLOR = GREEN
+    else:
+        LAPCOLOR = YELLOW
+    past_lap = last_lap_temp
+
+def reset_timer(channel):
+    global current_time
+    global past_lap
+    global best_lap
+    global LAPCOLOR
+    global laps
+    global bestlaps
+    LAPCOLOR = WHITE
+    best_lap = 0
+    past_lap = 0
+    laps = [0]
+    bestlaps = [0]
     current_time = pygame.time.get_ticks()
