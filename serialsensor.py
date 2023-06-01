@@ -342,7 +342,7 @@ def main():
     print("Initializing Formulas")
     mercury_telemetry_pipeline.send_log("Initializing Formulas")
 
-    #driver_telemetry.init_driver_telem()
+    driver_telemetry.init_driver_telem()
 
     executor = ThreadPoolExecutor(max_workers=len(arduino_candidates) + ENABLE_THERMOCOUPLE + ENABLE_PI_CPUTEMP + ENABLE_PIACCELEROMETER +ENABLE_GYRO+ENABLE_GPS + ENABLE_ADC + ENABLE_SLOW_ADC)
     futures = []
