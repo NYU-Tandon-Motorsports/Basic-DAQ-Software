@@ -259,30 +259,29 @@ def add_lap(channel):  # calculate lap time, add lap to stack, check for bestlap
     current_time = pygame.time.get_ticks()
 
 def rm_lap(channel): # remove previous lap and best lap if necessary from stack and updates dashboard, does not interrupt timer
-    try:
-        print("HIHIHI")
-        global current_time
-        global past_lap
-        global best_lap
-        global LAPCOLOR
-        global laps
-        global bestlaps
-        ll = 0
-        if len(laps) > 1:
-            ll = laps.pop()
-        if ll == bestlaps[-1] and len(bestlaps) > 1:
-            bestlaps.pop()
-        last_lap_temp = laps[-1]
-        best_lap = bestlaps[-1]
-        if (best_lap == 0 or last_lap_temp < best_lap):
-            LAPCOLOR = PURPLE
-        elif (last_lap_temp / best_lap < 1.25):
-            LAPCOLOR = GREEN
-        else:
-            LAPCOLOR = YELLOW
-        past_lap = last_lap_temp
-    except:
-        traceback.print_exc()
+    global current_time
+    global past_lap
+    global best_lap
+    global LAPCOLOR
+    global laps
+    global bestlaps
+    ll = 0
+    if len(laps) > 1:
+        ll = laps.pop()
+    if ll == bestlaps[-1] and len(bestlaps) > 1:
+        bestlaps.pop()
+    last_lap_temp = laps[-1]
+    best_lap = bestlaps[-1]
+    if (best_lap == 0):
+        LAPCOLOR = WHITE
+    elif (last_lap_temp < best_lap):
+        LAPCOLOR = PURPLE
+    elif (last_lap_temp / best_lap < 1.25):
+        LAPCOLOR = GREEN
+    else:
+        LAPCOLOR = YELLOW
+    past_lap = last_lap_temp
+
 
 def reset_timer(channel):
     global current_time
