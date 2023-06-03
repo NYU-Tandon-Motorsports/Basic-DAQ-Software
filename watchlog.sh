@@ -1,1 +1,1 @@
-watch tail -n 10 nohup.out
+watch -n 1 tail -n 25 nohup.out
