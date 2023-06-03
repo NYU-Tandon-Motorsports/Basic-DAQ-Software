@@ -267,6 +267,7 @@ def rm_lap(channel): # remove previous lap and best lap if necessary from stack 
         global LAPCOLOR
         global laps
         global bestlaps
+        ll = 0
         if len(laps) > 1:
             ll = laps.pop()
         if ll == bestlaps[-1] and len(bestlaps) > 1:
