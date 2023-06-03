@@ -72,8 +72,10 @@ def init_driver_telem():
     try:
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(21, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(21, GPIO.RISING, callback=add_lap)
+        GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(27, GPIO.RISING, callback=add_lap)
+        GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(22, GPIO.RISING, callback=rm_lap)
     except Exception:
         traceback.print_exc()
 

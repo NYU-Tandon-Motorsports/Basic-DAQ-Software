@@ -1,5 +1,7 @@
 import os
 import sensor_ids
+import driver_telemetry
+import math
 from datetime import datetime
 from datapoint import Datapoint
 import numpy as np
@@ -18,6 +20,10 @@ class Formulas:
         now = datetime.now()
         self.log = open(os.getcwd() + "/datalogs/Formulas_" + now.strftime("%m%d%Y_%H-%M-%S") + ".txt","x")  # timestamping the text file and making a new log
         self.log.write("Test formulas\n")
+
+
+    def calculate_speed(self, data_point):
+        data_point.outputs = [data_point.outputs[0] * 60 * math.pi * driver_telemetry.WHEEL_DIAMETER/ (66360 * 10)]
 
     def calculate_fourier_speed(self, data_point):
         """
@@ -78,7 +84,8 @@ class Formulas:
         return frequency
 
     def apply_calculation(self, data_point: Datapoint):
-        pass
+        if data_point.sense_id == sensor_ids.HALL_EFFECT2:
+            self.calculate_speed(data_point)
 
 
 
