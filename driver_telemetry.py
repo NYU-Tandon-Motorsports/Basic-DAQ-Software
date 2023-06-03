@@ -72,10 +72,10 @@ def init_driver_telem():
     try:
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(27, GPIO.RISING, callback=add_lap)
         GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(22, GPIO.RISING, callback=rm_lap)
+        GPIO.add_event_detect(22, GPIO.RISING, callback=add_lap)
+        GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(27, GPIO.RISING, callback=rm_lap)
     except Exception:
         traceback.print_exc()
 
@@ -259,25 +259,29 @@ def add_lap(channel):  # calculate lap time, add lap to stack, check for bestlap
     current_time = pygame.time.get_ticks()
 
 def rm_lap(channel): # remove previous lap and best lap if necessary from stack and updates dashboard, does not interrupt timer
-    global current_time
-    global past_lap
-    global best_lap
-    global LAPCOLOR
-    global laps
-    global bestlaps
-    if len(laps) > 1:
-        ll = laps.pop()
-    if ll == bestlaps[-1] and len(bestlaps) > 1:
-        bestlaps.pop()
-    last_lap_temp = laps[-1]
-    best_lap = bestlaps[-1]
-    if (best_lap == 0 or last_lap_temp < best_lap):
-        LAPCOLOR = PURPLE
-    elif (last_lap_temp / best_lap < 1.25):
-        LAPCOLOR = GREEN
-    else:
-        LAPCOLOR = YELLOW
-    past_lap = last_lap_temp
+    try:
+        print("HIHIHI")
+        global current_time
+        global past_lap
+        global best_lap
+        global LAPCOLOR
+        global laps
+        global bestlaps
+        if len(laps) > 1:
+            ll = laps.pop()
+        if ll == bestlaps[-1] and len(bestlaps) > 1:
+            bestlaps.pop()
+        last_lap_temp = laps[-1]
+        best_lap = bestlaps[-1]
+        if (best_lap == 0 or last_lap_temp < best_lap):
+            LAPCOLOR = PURPLE
+        elif (last_lap_temp / best_lap < 1.25):
+            LAPCOLOR = GREEN
+        else:
+            LAPCOLOR = YELLOW
+        past_lap = last_lap_temp
+    except:
+        traceback.print_exc()
 
 def reset_timer(channel):
     global current_time
