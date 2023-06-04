@@ -1,6 +1,6 @@
 double pulseWidthAdjustment = 1.0;
-double tStart1 = millis();
-double tStart2 = millis();
+unsigned long tStart1 = micros();
+unsigned long tStart2 = micros();
 void setup()
 {
     pinMode(2,INPUT_PULLUP);
@@ -14,8 +14,8 @@ void setup()
 void hall_1StopCounting()  //Falling edge
 {
     cli();
-    double rpm = pulseWidthAdjustment * 60/((millis() - tStart1) / 1000);
-    tStart1 = millis();
+    double rpm = pulseWidthAdjustment * 60.0/((micros() - tStart1) / 1000000.0);
+    tStart1 = micros();
     Serial.print("$$$20 Hall_Sensor 1 speed ");
     Serial.print(rpm);
     Serial.print(" RPM ");
@@ -26,8 +26,8 @@ void hall_1StopCounting()  //Falling edge
 void hall_2StopCounting()
 {
     cli();
-    double rpm = pulseWidthAdjustment * 60/((millis() - tStart2) / 1000);
-    tStart2 = millis();
+    double rpm = pulseWidthAdjustment * 60.0/((micros() - tStart2) / 1000000.0);
+    tStart2 = micros();
     Serial.print("$$$21 Hall_Sensor2 1 speed ");
     Serial.print(rpm);
     Serial.print(" RPM ");
