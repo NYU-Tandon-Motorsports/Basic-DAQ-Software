@@ -84,7 +84,7 @@ class Formulas:
         return frequency
 
     def apply_calculation(self, data_point: Datapoint):
-        if data_point.sense_id == sensor_ids.HALL_EFFECT2:
+        if data_point.sense_id == sensor_ids.HALL_EFFECT:
             self.calculate_speed(data_point)
 
 

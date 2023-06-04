@@ -72,10 +72,10 @@ def init_driver_telem():
     try:
         import RPi.GPIO as GPIO
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(22, GPIO.RISING, callback=add_lap)
         GPIO.setup(27, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.add_event_detect(27, GPIO.RISING, callback=rm_lap)
+        GPIO.add_event_detect(27, GPIO.RISING, callback=add_lap)
+        GPIO.setup(22, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+        GPIO.add_event_detect(22, GPIO.RISING, callback=rm_lap)
     except Exception:
         traceback.print_exc()
 
@@ -85,11 +85,13 @@ def init_driver_telem():
 
 
 def send_data(data: Datapoint):
-    if data.sense_id == sensor_ids.HALL_EFFECT:
+    if data.sense_id == sensor_ids.HALL_EFFECT2:
         global pre_rpm_state
         pre_rpm_state = data.outputs[0]
-
-
+    elif data.sense_id == sensor_ids.HALL_EFFECT:
+        global speed_state
+        speed_state = data.outputs[0]
+    
 def pygame_task():
     # pygame stuff
 

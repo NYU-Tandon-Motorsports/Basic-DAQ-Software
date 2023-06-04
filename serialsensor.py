@@ -24,13 +24,13 @@ import GPS
 
 
 SERIAL_ARDUINO_COUNT = 1  # hard coded value for now will determine how many arduinos there are
-ENABLE_PIACCELEROMETER = False
-ENABLE_THERMOCOUPLE = False
-ENABLE_PI_CPUTEMP = False
+ENABLE_PIACCELEROMETER = True
+ENABLE_THERMOCOUPLE = True
+ENABLE_PI_CPUTEMP = True
 ENABLE_GPS = True
-ENABLE_ADC = False
+ENABLE_ADC = True
 ENABLE_SLOW_ADC = False
-ENABLE_GYRO = False
+ENABLE_GYRO = True
 
 MERCURY_TIMEOUT = 0.5  #Wait time between post requests sent to live telemetry
 
@@ -114,11 +114,12 @@ def collect_accelerations(accelerometer, formula_calc, mercury_telemetry_pipelin
             if data_capture_time - mercury_last_sent > MERCURY_TIMEOUT:
                 mercury_telemetry_pipeline.send_packet(data)
                 mercury_last_sent = data_capture_time
+                print(output)
         except Exception as e:
             output = str(traceback.format_exc())
-        print(output)
+            print(output)
         log.write(output + "\n")
-        time.sleep(0.1)
+        time.sleep(0.005)
 
 def collect_gyro(gyro, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -135,11 +136,12 @@ def collect_gyro(gyro, formula_calc, mercury_telemetry_pipeline, log):
             if data_capture_time - mercury_last_sent > MERCURY_TIMEOUT:
                 mercury_telemetry_pipeline.send_packet(data)
                 mercury_last_sent = data_capture_time
+                print(output)
         except Exception as e:
             output = str(traceback.format_exc())
-        print(output)
+            print(output)
         log.write(output + "\n")
-        time.sleep(0.1)
+        time.sleep(0.005)
 
 def collect_sus_angles(adc, formula_calc, mercury_telemetry_pipeline, log):
     start_time = time.time()
@@ -149,7 +151,7 @@ def collect_sus_angles(adc, formula_calc, mercury_telemetry_pipeline, log):
         try:
             vals = adc.getVals()
             data_capture_time = time.time()
-            data = Datapoint(sensor_ids.SUS_ADC, "Front-Sus-Angles", 3, ["FL","FR"], [vals[0],vals[1]], ["deg","deg"], data_capture_time - start_time)
+            data = Datapoint(sensor_ids.SUS_ADC, "Front-Sus-Angles", 1, ["fl"], [vals[0]], ["deg"], data_capture_time - start_time)
             formula_calc.apply_calculation(data)
             output = str(data)
             driver_telemetry.send_data(data)
@@ -238,9 +240,9 @@ def parse_serial(serial_in, formula_calc, mercury_telemetry_pipeline, mercury_la
                 formula_calc.apply_calculation(data)
                 output = str(data)
                 print(output)
-                driver_telemetry.send_data(data)
                 if data_capture_time - mercury_last_sent > MERCURY_TIMEOUT:
                     mercury_telemetry_pipeline.send_packet(data)
+                    driver_telemetry.send_data(data)
                     mercury_last_sent = data_capture_time
         else:
             print(output)  # unmarked serial input

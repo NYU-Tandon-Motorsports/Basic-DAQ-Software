@@ -5,7 +5,7 @@ import requests
 import traceback
 from concurrent.futures import ThreadPoolExecutor
 
-ENABLE_TELEMETRY = True
+ENABLE_TELEMETRY = False
 LOCAL_URL = "http://localhost:8000/measurement/"
 REMOTE_URL = "http://telemetry-nyubaja.herokuapp.com/measurement/"
 
@@ -20,7 +20,8 @@ SENSOR_ID_DICT = {   # maps the Basic daq software sensor id to that which the u
     sensor_ids.STRING_POTENTIOMETER : 11,
     sensor_ids.CPUTEMP : 7,
     sensor_ids.HALL_EFFECT : 9,
-    sensor_ids.HALL_EFFECT2 : 10
+    sensor_ids.HALL_EFFECT2 : 10,
+    sensor_ids.SUS_ADC :  11
 }
 
 count = 500
